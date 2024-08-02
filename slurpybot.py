@@ -1,0 +1,103 @@
+import discord
+from discord.ext import commands
+from jokeapi import Jokes
+import apikeys
+import requests
+from datetime import datetime
+
+intents = discord.Intents.default()
+intents.message_content = True
+intents.members = True  
+
+client = commands.Bot(command_prefix='!', intents=intents)
+
+@client.event
+async def on_ready():
+    print("BOT ONLINE")
+
+@client.event
+async def on_member_join(member):
+
+    joke_api = await Jokes()
+    joke = await joke_api.get_joke()
+    if joke["type"] == "single":
+        joke_text = joke["joke"]
+    else:
+        joke_text = f"{joke['setup']}\n{joke['delivery']}"
+
+    channel = client.get_channel(apikeys.GENERAL_ID)
+    if channel:
+        await channel.send(f'Welcome {member.name}!')
+        await channel.send(joke_text)
+
+@client.event
+async def on_member_remove(member):
+    channel = client.get_channel(apikeys.GENERAL_ID)
+    if channel:
+        await channel.send(f'Goodbye {member.name}... 🚬')
+
+@client.command()
+async def hello(ctx):
+    print("COMMAND RECIEVED")
+    await ctx.send("Hello, I am your bot!")
+
+@client.command()
+async def abc(ctx):
+    print("COMMAND RECIEVED")
+    await ctx.send("123")
+
+@client.command()
+async def joke(ctx):
+    print("COMMAND RECIEVED")
+    
+    joke_api = await Jokes()
+    joke = await joke_api.get_joke()
+    if joke["type"] == "single":
+        joke_text = joke["joke"]
+    else:
+        joke_text = f"{joke['setup']}\n{joke['delivery']}"
+
+    await ctx.send(joke_text)
+
+@client.command()
+async def weather(ctx, *, city: str):
+    print("COMMAND RECIEVED")
+    
+
+    url = url = f"http://api.weatherapi.com/v1/current.json?key={apikeys.WEATHER_API}&q={city}"
+
+    response = requests.get(url)
+    data = response.json()
+
+    city_name = data['location']['name']
+    country = data['location']['country']
+    local_time = data['location']['localtime']
+
+    last_updated = data['current']['last_updated']
+    temp_c = data['current']['temp_c']
+    temp_f = data['current']['temp_f']
+    wind_kph = data['current']['wind_kph']
+    wind_mph = data['current']['wind_mph']
+    precip_mm = data['current']['precip_mm']
+    precip_in = data['current']['precip_in']
+    condition = data['current']['condition']['text']
+    humidity = data['current']['humidity']
+
+    local_time_formatted = datetime.strptime(local_time, '%Y-%m-%d %H:%M').strftime('%B %d, %Y  |  %I:%M %p')
+    last_updated_formatted = datetime.strptime(last_updated, '%Y-%m-%d %H:%M').strftime('%B %d, %Y  |  %I:%M %p')
+
+    weather_info =  (f'{city_name}, {country} 🗺️\n'
+                    f'Local Timestamp: {local_time_formatted} 🕒\n'
+                    f'\n'
+                    f'Last Update: {last_updated_formatted} 🕒\n'
+                    f'Temperature: {temp_c}°C / {temp_f}°F 🌡️\n'
+                    f'Condition: {condition} 🌥️\n'
+                    f'Wind: {wind_kph} kph / {wind_mph} mph 💨\n'
+                    f'Precipitation: {precip_mm} mm / {precip_in} in 💧\n'
+                    f'Humidity: {humidity}% ☀️')
+    
+    await ctx.send(weather_info)
+                    
+
+client.run(apikeys.BOT_TOKEN)
+
