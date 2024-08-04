@@ -3,10 +3,10 @@ from discord.ext import commands
 import apikeys
 import requests
 import math
-import random
 from datetime import datetime
 from jokeapi import Jokes
 import fortnite_api
+from blackjack import play_blackjack
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -49,6 +49,8 @@ async def commands(ctx):
                 '!news, !shop, !stats <player name>, !map\n\n'
                 '**OTHERS:**\n'
                 '!joke, !weather <city name>\n\n'
+                '**GAMES:**\n'
+                '!blackjack\n\n'
     )
 
     await ctx.send(message)
@@ -234,15 +236,25 @@ async def weather(ctx, *, city: str):
 ################################################################################################################################################
 #################################################################### GAMES #####################################################################
 ################################################################################################################################################
-#🃏
+
 @client.command()
 async def blackjack(ctx):
     print("COMMAND RECIEVED")
+    await play_blackjack(ctx)
 
+# 🎁
+@client.command()
+async def gift(ctx):
+    print("COMMAND RECIEVED")
 
+# 🏆
+@client.command()
+async def leaderboard(ctx):
+    print("COMMAND RECIEVED")
 
-    
-
-
+# 🪙
+@client.command()
+async def balance(ctx):
+    print("COMMAND RECIEVED")
 
 client.run(apikeys.BOT_TOKEN)
