@@ -1,4 +1,5 @@
 # blackjack.py
+
 import random
 
 deck = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10]
@@ -35,6 +36,8 @@ async def play_blackjack(ctx):
 
     # DEALER ACTIONS
     dealer_actions = []
+    if sum(dealer_hand) > 17:
+        dealer_actions.append(f'Dealer Hand: {dealer_hand}  ➡️  {calculate_hand(dealer_hand)}')
     while sum(dealer_hand) < 17: 
         new_card = random.choice(deck)
         dealer_hand.append(new_card)
