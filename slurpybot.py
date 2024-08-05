@@ -1,7 +1,7 @@
 import discord
 from discord.ext import commands
 import apikeys
-from blackjack import play_blackjack
+from blackjack import play_blackjack, print_balance, daily_gift, show_leaderboard, load_balances
 from fortnite import fort_news, fort_shop, fort_stats, fort_map
 from others import send_weather, tell_joke
 
@@ -19,6 +19,10 @@ client = commands.Bot(command_prefix='!', intents=intents)
 @client.event
 async def on_ready():
     print("BOT ONLINE")
+    load_balances()
+    channel = client.get_channel(apikeys.GENERAL_ID)  
+    if channel:
+        await channel.send("BOT ONLINE")
 
 @client.event
 async def on_member_join(member):
@@ -41,10 +45,11 @@ async def commands(ctx):
                 '!hello, !abc, !commands\n\n'
                 '**FORTNITE:**\n'
                 '!news, !shop, !stats <player name>, !map\n\n'
+                '**GAMES:**\n'
+                '!blackjack, !balance, !gift, !leaderboard\n\n'
                 '**OTHERS:**\n'
                 '!joke, !weather <city name>\n\n'
-                '**GAMES:**\n'
-                '!blackjack\n\n'
+
     )
 
     await ctx.send(message)
@@ -100,19 +105,19 @@ async def blackjack(ctx):
     print("COMMAND RECIEVED")
     await play_blackjack(ctx)
 
-# 🎁
 @client.command()
 async def gift(ctx):
     print("COMMAND RECIEVED")
+    await daily_gift(ctx)
 
-# 🏆
 @client.command()
 async def leaderboard(ctx):
     print("COMMAND RECIEVED")
+    await show_leaderboard(ctx)
 
-# 🪙
 @client.command()
 async def balance(ctx):
     print("COMMAND RECIEVED")
+    await print_balance(ctx, ctx.author.id)
 
 client.run(apikeys.BOT_TOKEN)

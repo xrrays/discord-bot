@@ -5,7 +5,6 @@ import math
 from datetime import datetime
 import fortnite_api
 
-
 fort_api = fortnite_api.FortniteAPI(api_key=apikeys.FORTNITE_API)
 
 def chunk_message(message, chunk_size=2000):
@@ -26,7 +25,6 @@ async def fort_news(ctx):
         news.append(news_item)
 
     await ctx.send("\n\n".join(news))
-
 
 async def fort_shop(ctx):
     print("COMMAND RECEIVED")
@@ -75,7 +73,6 @@ async def fort_shop(ctx):
     for chunk in chunk_message(message):
         await ctx.send(chunk)
 
-
 async def fort_stats(ctx, player_name: str):
     print("COMMAND RECIEVED")
 
@@ -105,7 +102,6 @@ async def fort_stats(ctx, player_name: str):
         await ctx.send(f"{player_name}'s stats are not public. 🐱")
     except fortnite_api.errors.NotFound:
         await ctx.send(f"{player_name}'s account does not exist.  👻")
-
 
 async def fort_map(ctx):
     print("COMMAND RECIEVED")

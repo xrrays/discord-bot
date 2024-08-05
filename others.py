@@ -44,9 +44,8 @@ async def send_weather(ctx, *, city: str):
 
 async def tell_joke(ctx):
     print("COMMAND RECIEVED")
-    
     joke_api = await Jokes()
-    joke = await joke_api.get_joke()
+    joke = await joke_api.get_joke(category=['Misc', 'Dark', 'Pun', 'Spooky', 'Christmas'])
     if joke["type"] == "single":
         joke_text = joke["joke"]
     else:
