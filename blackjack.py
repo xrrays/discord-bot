@@ -6,7 +6,7 @@ import os
 from datetime import datetime, timedelta
 
 BALANCES_FILE = 'user_balances.json'
-deck = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
+deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
 user_balances = {}
 last_gift_times = {}
 
@@ -96,6 +96,9 @@ async def play_blackjack(ctx):
     if user_id not in user_balances:
         user_balances[user_id] = 100
     balance = get_user_balance(user_id)
+    if balance == 0:
+        await ctx.send(f'You have no tokens to bet **brokie!**')
+        return
     await ctx.send(f'You have **{balance}** tokens. How much would you like to bet?')
 
     while True:
@@ -113,7 +116,6 @@ async def play_blackjack(ctx):
     dealer_hand = [deal_card(deck), deal_card(deck)]
     player_hand = [deal_card(deck), deal_card(deck)]
     await ctx.send(f"Dealer's Hand: [{dealer_hand[0]}, ?]\n")
-
 
     # PLAYER ACTIONS
     if calculate_hand(player_hand) == 21:
@@ -186,3 +188,4 @@ async def play_blackjack(ctx):
 
 # TO DO :
 # SPLTTING, DOUBLING
+# ADD STAT TRACKING

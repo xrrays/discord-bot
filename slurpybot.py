@@ -11,7 +11,6 @@ intents.members = True
 
 client = commands.Bot(command_prefix='!', intents=intents)
 
-
 ################################################################################################################################################
 #################################################################### BASICS ####################################################################
 ################################################################################################################################################
@@ -39,8 +38,11 @@ async def on_member_remove(member):
 @client.command()
 async def commands(ctx):
     print("COMMAND RECIEVED")
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+    else:
 
-    message = (
+        message = (
                 '**BASICS:**\n'
                 '!hello, !abc, !commands\n\n'
                 '**FORTNITE:**\n'
@@ -50,19 +52,25 @@ async def commands(ctx):
                 '**OTHERS:**\n'
                 '!joke, !weather <city name>\n\n'
 
-    )
+        )
 
-    await ctx.send(message)
+        await ctx.send(message)
 
 @client.command()
 async def hello(ctx):
     print("COMMAND RECIEVED")
-    await ctx.send("Hello, I am your bot!")
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+    else:
+        await ctx.send("Hello, I am your bot!")
 
 @client.command()
 async def abc(ctx):
     print("COMMAND RECIEVED")
-    await ctx.send("123")
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+    else:
+        await ctx.send("123")
 
 ##################################################################################################################################################
 #################################################################### FORTNITE ####################################################################
@@ -70,18 +78,30 @@ async def abc(ctx):
 
 @client.command()
 async def news(ctx):
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+        return
     await fort_news(ctx)
 
 @client.command()
 async def shop(ctx):
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+        return
     await fort_shop(ctx)
 
 @client.command()
 async def map(ctx):
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+        return
     await fort_map(ctx)
 
 @client.command()
 async def stats(ctx, player_name: str):
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+        return
     await fort_stats(ctx, player_name)
 
 ################################################################################################################################################
@@ -90,10 +110,16 @@ async def stats(ctx, player_name: str):
 
 @client.command()
 async def joke(ctx):
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+        return
     await tell_joke(ctx)
 
 @client.command()
 async def weather(ctx, *, city: str):
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+        return
     await send_weather(ctx, city=city)
 
 ################################################################################################################################################
@@ -103,21 +129,33 @@ async def weather(ctx, *, city: str):
 @client.command()
 async def blackjack(ctx):
     print("COMMAND RECIEVED")
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+        return
     await play_blackjack(ctx)
 
 @client.command()
 async def gift(ctx):
     print("COMMAND RECIEVED")
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+        return
     await daily_gift(ctx)
 
 @client.command()
 async def leaderboard(ctx):
     print("COMMAND RECIEVED")
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+        return
     await show_leaderboard(ctx)
 
 @client.command()
 async def balance(ctx):
     print("COMMAND RECIEVED")
+    if ctx.channel.id != apikeys.GENERAL_ID:
+        await ctx.send(f"This command can only be used in the general channel.")
+        return
     await print_balance(ctx, ctx.author.id)
 
 client.run(apikeys.BOT_TOKEN)
