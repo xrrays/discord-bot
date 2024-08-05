@@ -1,5 +1,5 @@
+aiohttp
 DateTime==5.5
-discord.py==2.4.0
 fortnite-api==2.6.8
 jokeapi==1.0.5
 requests==2.31.0
