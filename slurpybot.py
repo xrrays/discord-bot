@@ -20,9 +20,6 @@ client = commands.Bot(command_prefix='!', intents=intents)
 async def on_ready():
     print("BOT ONLINE")
     load_balances()
-    channel = client.get_channel(int(os.getenv('GENERAL_ID')))  
-    if channel:
-        await channel.send("BOT ONLINE")
 
 @client.event
 async def on_member_join(member):
