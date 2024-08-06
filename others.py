@@ -8,7 +8,7 @@ import os
 async def send_weather(ctx, *, city: str):
     print("COMMAND RECIEVED")
     
-    weather_api = f"http://api.weatherapi.com/v1/current.json?key={os.getenv('WEATHER_API')}&q={{city}}"
+    weather_api = f"http://api.weatherapi.com/v1/current.json?key={os.getenv('WEATHER_API')}&q={city}"
 
 
     response = requests.get(weather_api)
