@@ -1,11 +1,11 @@
 # fortnite.py
 
-import apikeys
 import math
 from datetime import datetime
 import fortnite_api
+import os
 
-fort_api = fortnite_api.FortniteAPI(api_key=apikeys.FORTNITE_API)
+fort_api = fortnite_api.FortniteAPI(api_key=os.getenv('FORTNITE_API'))
 
 def chunk_message(message, chunk_size=2000):
     for i in range(0, len(message), chunk_size):
