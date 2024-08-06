@@ -1,6 +1,6 @@
 # others.py
 
-#import apikeys
+import apikeys
 from datetime import datetime
 import requests
 from jokeapi import Jokes
