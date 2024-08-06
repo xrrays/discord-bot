@@ -4,6 +4,7 @@ from flask import Flask
 from threading import Thread
 import requests
 import time
+import logging
 
 app = Flask('')
 @app.route('/')
@@ -19,11 +20,11 @@ def keep_alive():
         while True:
             try:
                 requests.get('https://discord-bot-6mzo.onrender.com')
-                print("Pinged bot to keep alive.")
+                logging.info("Pinged bot to keep alive.")
             except Exception as e:
-                print(f"Error keeping bot alive: {e}")
-            time.sleep(900) 
-    
+                logging.error(f"Error keeping bot alive: {e}")
+            time.sleep(180)
+
     t1 = Thread(target=run)
     t2 = Thread(target=ping)
     t1.start()
