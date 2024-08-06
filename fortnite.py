@@ -113,3 +113,4 @@ async def fort_map(ctx):
     message = (f"**The Fortnite map on {today_date}:  📍**")
     await ctx.send(message)
     await ctx.send(poi_image)
+    

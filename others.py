@@ -53,3 +53,4 @@ async def tell_joke(ctx):
         joke_text = f"**{joke['setup']}**\n*{joke['delivery']}*"
 
     await ctx.send(joke_text)
+    

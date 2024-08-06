@@ -189,4 +189,4 @@ async def play_blackjack(ctx):
 
 # TO DO :
 # SPLTTING, DOUBLING
-# ADD STAT TRACKING
+# ADD STAT TRACKING...
