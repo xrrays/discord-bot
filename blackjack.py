@@ -3,6 +3,7 @@
 import random
 import json
 import os
+import math
 from datetime import datetime, timedelta
 
 BALANCES_FILE = 'user_balances.json'
@@ -119,7 +120,7 @@ async def play_blackjack(ctx):
 
     # PLAYER ACTIONS
     if calculate_hand(player_hand) == 21:
-        winnings = bet * 1.5
+        winnings = math.ceil(bet * 1.5)
         update_user_balance(user_id, winnings)
         await ctx.send(f'You got a natural blackjack: {player_hand} \nYou won {winnings} tokens!')
     else: 

@@ -4,6 +4,7 @@ from blackjack import play_blackjack, print_balance, daily_gift, show_leaderboar
 from fortnite import fort_news, fort_shop, fort_stats, fort_map
 from others import send_weather, tell_joke
 import os
+import webserver
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -158,4 +159,5 @@ async def balance(ctx):
         return
     await print_balance(ctx, ctx.author.id)
 
+webserver.keep_alive()
 client.run(os.getenv('BOT_TOKEN'))
