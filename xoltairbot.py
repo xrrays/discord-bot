@@ -39,7 +39,4 @@ async def testlebron(ctx):
             return
         await get_lebron(ctx)
 
-     
-
-
 client.run(XOLTAIR_TOKEN)
