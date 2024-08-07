@@ -50,7 +50,7 @@ async def commands(ctx):
                 '**GAMES:**\n'
                 '!blackjack, !balance, !gift, !leaderboard\n\n'
                 '**OTHERS:**\n'
-                '!joke, !weather <city name>\n\n'
+                '!joke, !weather <city name>, !lebron\n\n'
 
         )
 

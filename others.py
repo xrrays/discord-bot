@@ -55,7 +55,7 @@ async def tell_joke(ctx):
     await ctx.send(joke_text)
 
 async def get_lebron(ctx):
-    link = f'https://api.giphy.com/v1/gifs/random?api_key={'GIPHY_KEY'}&tag=LeBron+James'
+    link = f'https://api.giphy.com/v1/gifs/random?api_key={os.getenv("GIPHY_KEY")}&tag=LeBron+James'
     response = requests.get(link)
     data = response.json()
     gif = data['data']['images']['original']['url']
