@@ -1,8 +1,10 @@
+# slurpybot.py
+
 import discord
 from discord.ext import commands
 from blackjack import play_blackjack, print_balance, daily_gift, show_leaderboard, load_balances
 from fortnite import fort_news, fort_shop, fort_stats, fort_map
-from others import send_weather, tell_joke
+from others import send_weather, tell_joke, get_lebron
 import os
 import webserver
 
@@ -119,6 +121,12 @@ async def weather(ctx, *, city: str):
         await ctx.send(f"This command can only be used in the general channel.")
         return
     await send_weather(ctx, city=city)
+
+@client.command()
+async def lebron(ctx):
+    if ctx.channel.id != int(os.getenv('GENERAL_ID')):
+        await ctx.send(f"This command can only be used in the general channel.")
+    await get_lebron(ctx)
 
 ################################################################################################################################################
 #################################################################### GAMES #####################################################################

@@ -47,7 +47,7 @@ async def fort_shop(ctx):
             # seen_skins = comestic_name: {price: price, category: category_name}
 
     for item in featured_items:
-        category_name = item.layout.name
+        category_name = item.layout.name if item.layout else 'Unknown'
         for cosmetic in item.items:
             if cosmetic.type.value == 'outfit':
                 add_to_category(category_name, cosmetic.name, item.final_price)

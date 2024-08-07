@@ -51,9 +51,9 @@ async def print_balance(ctx, user_id):
     balance = get_user_balance(user_id)
     if balance == 0 or user_id not in user_balances:
         user_balances[user_id] = 100
-        await ctx.send(f"You have **{get_user_balance(user_id)}** tokens.  🪙")
+        await ctx.send(f"You have **{get_user_balance(user_id)}** aura.  🪙")
     else:
-        await ctx.send(f"You have **{get_user_balance(user_id)}** tokens.  🪙")
+        await ctx.send(f"You have **{get_user_balance(user_id)}** aura.  🪙")
     save_balances()
 
 async def daily_gift(ctx):
@@ -77,16 +77,16 @@ async def daily_gift(ctx):
     
     update_user_balance(user_id, 100)
     last_gift_times[user_id] = current_time
-    await ctx.send(f'100 tokens have been deposited into your account!  🎁\n**New Balance: {get_user_balance(user_id)}  🪙**')
+    await ctx.send(f'100 aura have been deposited into your account!  🎁\n**New Balance: {get_user_balance(user_id)}  🪙**')
     save_balances()
 
 async def show_leaderboard(ctx):
     user_balances_with_names = {ctx.guild.get_member(uid).name: bal for uid, bal in user_balances.items()}
     leaderboard = sorted(user_balances_with_names.items(), key=lambda item: item[1], reverse=True)
 
-    leaderboard_message = '**🏆  LEADERBOARD:**\n\n'
+    leaderboard_message = '**🏆  LEADERBOARD:**\n'
     for idx, (user, balance) in enumerate(leaderboard, start=1):
-        leaderboard_message += f"{idx}. {user}: {balance} tokens  🪙\n"
+        leaderboard_message += f"{idx}. {user}: {balance} aura  🪙\n"
 
     await ctx.send(leaderboard_message)
 
@@ -98,9 +98,9 @@ async def play_blackjack(ctx):
         user_balances[user_id] = 100
     balance = get_user_balance(user_id)
     if balance == 0:
-        await ctx.send(f'You have no tokens to bet **brokie!**')
+        await ctx.send(f'You have no aura to bet **brokie!**')
         return
-    await ctx.send(f'You have **{balance}** tokens. How much would you like to bet?')
+    await ctx.send(f'You have **{balance}** aura. How much would you like to bet?')
 
     while True:
         response = await ctx.bot.wait_for('message', check=lambda message: message.author == ctx.author)
@@ -122,7 +122,7 @@ async def play_blackjack(ctx):
     if calculate_hand(player_hand) == 21:
         winnings = math.ceil(bet * 1.5)
         update_user_balance(user_id, winnings)
-        await ctx.send(f'You got a natural blackjack: {player_hand} \nYou won {winnings} tokens!')
+        await ctx.send(f'You got a natural blackjack: {player_hand} \nYou won {winnings} aura!')
     else: 
         while calculate_hand(player_hand) < 22:
             await ctx.send(f'Your Hand: {player_hand}  ➡️  {calculate_hand(player_hand)}\n''Do you want to hit or stay?')
@@ -185,8 +185,3 @@ async def play_blackjack(ctx):
     user_balances_with_names = {ctx.guild.get_member(uid).name: bal for uid, bal in user_balances.items()}
     print(user_balances_with_names)
     save_balances()
-
-
-# TO DO :
-# SPLTTING, DOUBLING
-# ADD STAT TRACKING...
