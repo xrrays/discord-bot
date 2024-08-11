@@ -1,5 +1,6 @@
 aiohttp
 flask
+characterai
 discord.py==2.4.0
 DateTime==5.5
 fortnite-api==2.6.8

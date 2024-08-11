@@ -51,9 +51,9 @@ async def print_balance(ctx, user_id):
     balance = get_user_balance(user_id)
     if balance == 0 or user_id not in user_balances:
         user_balances[user_id] = 100
-        await ctx.send(f"You have **{get_user_balance(user_id)}** aura.  🪙")
+        await ctx.send(f"You have **{get_user_balance(user_id)}** aura.  💎")
     else:
-        await ctx.send(f"You have **{get_user_balance(user_id)}** aura.  🪙")
+        await ctx.send(f"You have **{get_user_balance(user_id)}** aura.  💎")
     save_balances()
 
 async def daily_gift(ctx):
@@ -77,7 +77,7 @@ async def daily_gift(ctx):
     
     update_user_balance(user_id, 100)
     last_gift_times[user_id] = current_time
-    await ctx.send(f'100 aura have been deposited into your account!  🎁\n**New Balance: {get_user_balance(user_id)}  🪙**')
+    await ctx.send(f'You have gained + 100 aura...  🎁\n**New Balance: {get_user_balance(user_id)}  💎**')
     save_balances()
 
 async def show_leaderboard(ctx):
@@ -86,7 +86,7 @@ async def show_leaderboard(ctx):
 
     leaderboard_message = '**🏆  LEADERBOARD:**\n'
     for idx, (user, balance) in enumerate(leaderboard, start=1):
-        leaderboard_message += f"{idx}. {user}: {balance} aura  🪙\n"
+        leaderboard_message += f"{idx}. {user}: {balance} aura  💎\n"
 
     await ctx.send(leaderboard_message)
 
@@ -98,12 +98,12 @@ async def play_blackjack(ctx):
         user_balances[user_id] = 100
     balance = get_user_balance(user_id)
     if balance == 0:
-        await ctx.send(f'You have no aura to bet **brokie!**')
+        await ctx.send(f'You have no aura left **brokie!**')
         return
     await ctx.send(f'You have **{balance}** aura. How much would you like to bet?')
 
     while True:
-        response = await ctx.bot.wait_for('message', check=lambda message: message.author == ctx.author)
+        response = await ctx.bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=59.0)
         try:
             bet = int(response.content)
             if bet < 1 or bet > balance:
@@ -122,11 +122,11 @@ async def play_blackjack(ctx):
     if calculate_hand(player_hand) == 21:
         winnings = math.ceil(bet * 1.5)
         update_user_balance(user_id, winnings)
-        await ctx.send(f'You got a natural blackjack: {player_hand} \nYou won {winnings} aura!')
+        await ctx.send(f'You got a natural blackjack: {player_hand} \nYou gained {winnings} aura!')
     else: 
         while calculate_hand(player_hand) < 22:
             await ctx.send(f'Your Hand: {player_hand}  ➡️  {calculate_hand(player_hand)}\n''Do you want to hit or stay?')
-            response = await ctx.bot.wait_for('message', check=lambda message: message.author == ctx.author)
+            response = await ctx.bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=59.0)
             action = response.content.lower()
             if action == 'hit':
                 player_hand.append(deal_card(deck))
@@ -161,26 +161,26 @@ async def play_blackjack(ctx):
     if player_score > 21:
         update_user_balance(user_id, -bet)
         await ctx.send(f'\u200B󠁼󠁼󠁼\n**You lost... you busted...  🃏**\n{message}'
-                        f'\n**New Balance: {get_user_balance(user_id)}  🪙**')
+                        f'\n**New Balance: {get_user_balance(user_id)}  💎**')
     
     elif dealer_score > 21:
         update_user_balance(user_id, bet)
         await ctx.send(f'\u200B\n**You won, the dealer busted...  🃏**\n{message}'
-                       f'\n**New Balance: {get_user_balance(user_id)}  🪙**')
+                       f'\n**New Balance: {get_user_balance(user_id)}  💎**')
 
     elif player_score == dealer_score:
         await ctx.send(f'\u200B\n**This game is a tie...  🃏**\n{message}'
-                       f'\n**New Balance: {get_user_balance(user_id)}  🪙**')
+                       f'\n**New Balance: {get_user_balance(user_id)}  💎**')
 
     elif player_score < dealer_score:
         update_user_balance(user_id, -bet)
         await ctx.send(f'\u200B\n**You lost...  🃏**\n{message}'
-                       f'\n**New Balance: {get_user_balance(user_id)}  🪙**')
+                       f'\n**New Balance: {get_user_balance(user_id)}  💎**')
 
     else: 
         update_user_balance(user_id, bet)
         await ctx.send(f'\u200B\n**You won... 🃏**\n{message}'
-                       f'\n**New Balance: {get_user_balance(user_id)}  🪙**')
+                       f'\n**New Balance: {get_user_balance(user_id)}  💎**')
         
     user_balances_with_names = {ctx.guild.get_member(uid).name: bal for uid, bal in user_balances.items()}
     print(user_balances_with_names)

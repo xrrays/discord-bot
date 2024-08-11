@@ -5,6 +5,7 @@ from discord.ext import commands
 from blackjack import play_blackjack, print_balance, daily_gift, show_leaderboard, load_balances
 from fortnite import fort_news, fort_shop, fort_stats, fort_map
 from others import send_weather, tell_joke, get_lebron
+from chai import chai_chat
 import os
 import webserver
 
@@ -50,7 +51,7 @@ async def commands(ctx):
                 '**GAMES:**\n'
                 '!blackjack, !balance, !gift, !leaderboard\n\n'
                 '**OTHERS:**\n'
-                '!joke, !weather <city name>, !lebron\n\n'
+                '!joke, !weather <city name>, !goat, !chat\n\n'
 
         )
 
@@ -123,10 +124,18 @@ async def weather(ctx, *, city: str):
     await send_weather(ctx, city=city)
 
 @client.command()
-async def lebron(ctx):
+async def goat(ctx):
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
         await ctx.send(f"This command can only be used in the general channel.")
     await get_lebron(ctx)
+
+@client.command()
+async def chat(ctx):
+    print("COMMAND RECIEVED")
+    if ctx.channel.id != int(os.getenv('CHAI_ID')):
+        await ctx.send('Use the **chai** channel for this command!')
+        return
+    await chai_chat(ctx)
 
 ################################################################################################################################################
 #################################################################### GAMES #####################################################################
@@ -165,4 +174,4 @@ async def balance(ctx):
     await print_balance(ctx, ctx.author.id)
 
 webserver.keep_alive()
-client.run(os.getenv('BOT_TOKEN'))
+client.run(os.getenv('SLURPY_TOKEN'))
