@@ -127,6 +127,7 @@ async def weather(ctx, *, city: str):
 async def goat(ctx):
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
         await ctx.send(f"This command can only be used in the general channel.")
+        return
     await get_lebron(ctx)
 
 @client.command()
