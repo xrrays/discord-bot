@@ -77,7 +77,7 @@ async def daily_gift(ctx):
     
     update_user_balance(user_id, 100)
     last_gift_times[user_id] = current_time
-    await ctx.send(f'You have gained + 100 aura...  🎁\n**New Balance: {get_user_balance(user_id)}  💎**')
+    await ctx.send(f'You have gained +100 aura...  🎁\n**New Balance: {get_user_balance(user_id)}  💎**')
     save_balances()
 
 async def show_leaderboard(ctx):
