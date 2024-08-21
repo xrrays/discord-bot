@@ -2,7 +2,7 @@
 
 import discord
 from discord.ext import commands
-from blackjack import play_blackjack, print_balance, daily_gift, show_leaderboard, load_balances
+from blackjack import play_blackjack, print_balance, daily_gift, show_leaderboard
 from fortnite import fort_news, fort_shop, fort_stats, fort_map
 from others import send_weather, tell_joke, get_lebron
 from chai import chai_chat
@@ -22,7 +22,6 @@ client = commands.Bot(command_prefix='!', intents=intents)
 @client.event
 async def on_ready():
     print("BOT ONLINE")
-    load_balances()
 
 @client.event
 async def on_member_join(member):
