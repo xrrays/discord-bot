@@ -9,7 +9,7 @@ A blackjack feature supported by a system revolving around the use of a made up 
 ### Character AI Chatbot
 #### Commands: !chat
 #### Characters Supported: ChatGPT, Deku, TikTok Brainrot, Who Would Win, Sukuna, Nami, Psychologist, Adventure Game, Homelander
-A chatbot feature that supports several characters that the user can have a conversation with, in their character. The bot uses the website Character AI and an API to access these characters and relay the conversation between the user and the character in real time. Characters can easily be added and removed from the bot's roster easily with a simple line of code, giving the feature many useful implementations, including for educational help, creative assistance, humorous chats and more.
+A chatbot feature that supports several characters that the user can have a conversation with, in their character. The bot uses the website Character AI and an API to access these characters and relay the conversation between the user and the character in real time. Characters can easily be added and removed from the bot's roster easily with a simple line of code giving the feature many useful implementations, including for educational help, creative assistance, humorous chats and more.
 
 ### Fortnite Information
 #### Commands: !news, !shop, !map, !stats playerName
@@ -17,17 +17,16 @@ The bot uses the Fortnite API to fetch and relay data from Fortnite to the user.
 
 ### Others
 #### Commands: !weather cityName, !joke, !goat
-The weather command provides the user with the current weather and timezone information about any city in the world.
-The joke command returns a random joke to the user, from different categories like puns, dark humor and others.
-The goat command makes the bot send a random GIF of LeBron James.
+The weather command provides the user with the current weather and timezone information about any city in the world.  
+The joke command returns a random joke to the user, from different categories like puns, dark humor and others.  
+The goat command makes the bot send a random GIF of LeBron James.  
 
 ## API's Used
-FORTNITE API: https://github.com/Fortnite-API/py-wrapper
-WEATHER API: https://www.weatherapi.com/
-JOKE API : https://github.com/benjhar/JokeAPI-Python#readme
-GIPHY API: https://developers.giphy.com/dashboard/
-CHARACTER AI API: https://github.com/kramcat/CharacterAI
-
+FORTNITE API: https://github.com/Fortnite-API/py-wrapper  
+WEATHER API: https://www.weatherapi.com/  
+JOKE API : https://github.com/benjhar/JokeAPI-Python#readme  
+GIPHY API: https://developers.giphy.com/dashboard/  
+CHARACTER AI API: https://github.com/kramcat/CharacterAI  
 
 ## Future Additions
 - external database integration for tracking balances in blackjack

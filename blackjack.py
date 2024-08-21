@@ -1,12 +1,12 @@
 # blackjack.py
 
 import random
-import json
 import os
+import psycopg2
 import math
 from datetime import datetime, timedelta
 
-BALANCES_FILE = 'user_balances.json'
+DATABASE_URL = os.getenv("DATABASE_URL")
 deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
 user_balances = {}
 last_gift_times = {}
@@ -26,26 +26,21 @@ def calculate_hand(hand):
     return total
 
 def get_user_balance(user_id):
-    return user_balances.get(user_id)
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT balance FROM user_balances WHERE user_id = %s", (user_id,))
+            result = cur.fetchone()
+            return result[0] if result else 100
     
 def update_user_balance(user_id, amount):
-    user_balances[user_id] += amount
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+            INSERT INTO user_balances (user_id, balance) 
+            VALUES (%s, %s)
+            ON CONFLICT (user_id) 
+            DO UPDATE SET balance = user_balances.balance + EXCLUDED.balance; """, (user_id, amount))
 
-def save_balances():
-    with open(BALANCES_FILE, 'w') as f:
-        json.dump(user_balances, f)
-
-def load_balances():
-    global user_balances
-    if os.path.exists(BALANCES_FILE):
-        with open(BALANCES_FILE, 'r') as f:
-            try:
-                loaded_balances = json.load(f)
-                user_balances = {int(k): v for k, v in loaded_balances.items()}
-            except json.JSONDecodeError:
-                user_balances = {}
-    else:
-        user_balances = {}
 
 async def print_balance(ctx, user_id):
     balance = get_user_balance(user_id)
@@ -54,7 +49,7 @@ async def print_balance(ctx, user_id):
         await ctx.send(f"You have **{get_user_balance(user_id)}** aura.  💎")
     else:
         await ctx.send(f"You have **{get_user_balance(user_id)}** aura.  💎")
-    save_balances()
+
 
 async def daily_gift(ctx):
     user_id = ctx.author.id
@@ -78,7 +73,7 @@ async def daily_gift(ctx):
     update_user_balance(user_id, 100)
     last_gift_times[user_id] = current_time
     await ctx.send(f'You have gained +100 aura...  🎁\n**New Balance: {get_user_balance(user_id)}  💎**')
-    save_balances()
+
 
 async def show_leaderboard(ctx):
     user_balances_with_names = {ctx.guild.get_member(uid).name: bal for uid, bal in user_balances.items()}
@@ -184,4 +179,3 @@ async def play_blackjack(ctx):
         
     user_balances_with_names = {ctx.guild.get_member(uid).name: bal for uid, bal in user_balances.items()}
     print(user_balances_with_names)
-    save_balances()
