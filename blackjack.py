@@ -47,7 +47,7 @@ async def print_balance(ctx, user_id):
 async def daily_gift(ctx):
     user_id = ctx.author.id
     current_time = datetime.now()
-        
+
     if user_id in last_gift_times:
         user_last_gift_time = last_gift_times[user_id]
         time_since_last = current_time - user_last_gift_time
@@ -66,9 +66,13 @@ async def show_leaderboard(ctx):
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT user_id, balance FROM user_balances")
-            user_balances = cur.fetchall()
+            user_balances = cur.fetchall()      # Returns a list of tuples
 
-    user_balances_with_names = {ctx.guild.get_member(uid).name: bal for uid, bal in user_balances.items()}
+    user_balances_with_names = {                # Convert tuples to a dictionary
+        ctx.guild.get_member(uid).name: bal 
+        for uid, bal in user_balances 
+        if ctx.guild.get_member(uid)  }
+    
     leaderboard = sorted(user_balances_with_names.items(), key=lambda item: item[1], reverse=True)
 
     leaderboard_message = '**🏆  LEADERBOARD:**\n'
