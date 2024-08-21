@@ -1,5 +1,5 @@
 # Personal Discord Bot
-This is a personal discord bot for my friends and I that provides games, information and other random features. The bot runs 24/7 with the use of a cloud hosting servcice and is connected straight to this GitHub so updates can be deployed to the bot seamlessly.
+This is a personal discord bot for my friends and I that provides games, information and other random features. The bot runs 24/7 with the use of a cloud hosting servcice, uses PostGresSQL to track user balances for blackjack and is connected straight to this GitHub so updates can be deployed to the bot seamlessly.
 
 ## Features
 ### Blackjack System
@@ -29,7 +29,6 @@ GIPHY API: https://developers.giphy.com/dashboard/
 CHARACTER AI API: https://github.com/kramcat/CharacterAI  
 
 ## Future Additions
-- external database integration for tracking balances in blackjack
 - image generation (!image prompt)
 - information about a movie, ie. reviews, box office, budget, release date (!movie movieName)
 - quote bank that we can add to, bot sends one random quote a day (!quoteadd)

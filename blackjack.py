@@ -8,7 +8,6 @@ from datetime import datetime, timedelta
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
-user_balances = {}
 last_gift_times = {}
 
 def deal_card(deck):
@@ -41,23 +40,14 @@ def update_user_balance(user_id, amount):
             ON CONFLICT (user_id) 
             DO UPDATE SET balance = user_balances.balance + EXCLUDED.balance; """, (user_id, amount))
 
-
 async def print_balance(ctx, user_id):
     balance = get_user_balance(user_id)
-    if balance == 0 or user_id not in user_balances:
-        user_balances[user_id] = 100
-        await ctx.send(f"You have **{get_user_balance(user_id)}** aura.  💎")
-    else:
-        await ctx.send(f"You have **{get_user_balance(user_id)}** aura.  💎")
-
+    await ctx.send(f"You have **{balance}** aura.  💎")
 
 async def daily_gift(ctx):
     user_id = ctx.author.id
     current_time = datetime.now()
-
-    if user_id not in user_balances:
-        user_balances[user_id] = 100
-    
+        
     if user_id in last_gift_times:
         user_last_gift_time = last_gift_times[user_id]
         time_since_last = current_time - user_last_gift_time
@@ -66,16 +56,18 @@ async def daily_gift(ctx):
         if current_time - user_last_gift_time < timedelta(seconds=60):
             countdown = str(time_till_next).split('.')[0]
             await ctx.send(f'You can only claim this gift once every 60 seconds.\nClaim in: **{countdown}**...')
-            last_gift_times_with_names = {ctx.guild.get_member(uid).name: bal for uid, bal in user_balances.items()}
-            print(last_gift_times_with_names)
             return
     
     update_user_balance(user_id, 100)
     last_gift_times[user_id] = current_time
     await ctx.send(f'You have gained +100 aura...  🎁\n**New Balance: {get_user_balance(user_id)}  💎**')
 
-
 async def show_leaderboard(ctx):
+    with psycopg2.connect(DATABASE_URL) as conn:
+        with conn.cursor() as cur:
+            cur.execute("SELECT user_id, balance FROM user_balances")
+            user_balances = cur.fetchall()
+
     user_balances_with_names = {ctx.guild.get_member(uid).name: bal for uid, bal in user_balances.items()}
     leaderboard = sorted(user_balances_with_names.items(), key=lambda item: item[1], reverse=True)
 
@@ -89,8 +81,6 @@ async def play_blackjack(ctx):
 
     # BETTING SETUP
     user_id = ctx.author.id
-    if user_id not in user_balances:
-        user_balances[user_id] = 100
     balance = get_user_balance(user_id)
     if balance == 0:
         await ctx.send(f'You have no aura left **brokie!**')
@@ -176,6 +166,3 @@ async def play_blackjack(ctx):
         update_user_balance(user_id, bet)
         await ctx.send(f'\u200B\n**You won... 🃏**\n{message}'
                        f'\n**New Balance: {get_user_balance(user_id)}  💎**')
-        
-    user_balances_with_names = {ctx.guild.get_member(uid).name: bal for uid, bal in user_balances.items()}
-    print(user_balances_with_names)
