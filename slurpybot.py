@@ -27,7 +27,7 @@ async def on_ready():
 async def on_member_join(member):
     channel = client.get_channel(int(os.getenv('GENERAL_ID')))
     if channel:
-        await channel.send(f'**Welcome {member.name}!**')
+        await channel.send(f'**Welcome {member.name}!**\n\n\Try **!commands** for available commands.')
 
 @client.event
 async def on_member_remove(member):
@@ -36,7 +36,7 @@ async def on_member_remove(member):
         await channel.send(f'**Goodbye {member.name}... 🚬**')
 
 @client.command()
-async def commands(ctx):
+async def help(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
         await ctx.send(f"This command can only be used in the general channel.")
@@ -44,11 +44,11 @@ async def commands(ctx):
 
         message = (
                 '**BASICS:**\n'
-                '!hello, !abc, !commands\n\n'
+                '!hello, !abc, !help\n\n'
                 '**FORTNITE:**\n'
                 '!news, !shop, !stats <player name>, !map\n\n'
                 '**GAMES:**\n'
-                '!blackjack, !balance, !gift, !leaderboard\n\n'
+                '!play, !bal, !gift, !scores\n\n'
                 '**OTHERS:**\n'
                 '!joke, !weather <city name>, !goat, !chat\n\n'
 
@@ -77,7 +77,7 @@ async def abc(ctx):
 ##################################################################################################################################################
 
 @client.command()
-async def news(ctx):
+async def fort(ctx):
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
         await ctx.send(f"This command can only be used in the general channel.")
         return
@@ -142,7 +142,7 @@ async def chat(ctx):
 ################################################################################################################################################
 
 @client.command()
-async def blackjack(ctx):
+async def play(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
         await ctx.send(f"This command can only be used in the general channel.")
@@ -158,7 +158,7 @@ async def gift(ctx):
     await daily_gift(ctx)
 
 @client.command()
-async def leaderboard(ctx):
+async def scores(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
         await ctx.send(f"This command can only be used in the general channel.")
@@ -166,7 +166,7 @@ async def leaderboard(ctx):
     await show_leaderboard(ctx)
 
 @client.command()
-async def balance(ctx):
+async def bal(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
         await ctx.send(f"This command can only be used in the general channel.")

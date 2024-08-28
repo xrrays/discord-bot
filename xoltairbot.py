@@ -3,11 +3,8 @@
 
 import discord
 from discord.ext import commands
-from fortnite import fort_shop
-from others import get_lebron
 from chai import chai_chat
 from apikeys import XOLTAIR_TOKEN, GENERAL_ID, CHAI_ID
-import requests
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -25,7 +22,12 @@ async def on_ready():
 @client.command()
 async def test(ctx):
     print("COMMAND RECIEVED")
-    await ctx.send("Hello, I am your bot!")
+    await ctx.send("button:", view=TestButtonView())
+
+class TestButtonView(discord.ui.View):
+    @discord.ui.button(label="Click Me!", style=discord.ButtonStyle.primary)
+    async def button_callback(self, interaction: discord.Interaction, button: discord.ui.Button):
+        await interaction.response.send_message("Button clicked!")
 
 @client.command()
 async def chat(ctx):

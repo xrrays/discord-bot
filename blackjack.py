@@ -25,6 +25,7 @@ def calculate_hand(hand):
     return total
 
 def get_user_balance(user_id):
+    # Connect to database, fetch balance associated with user id
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT balance FROM user_balances WHERE user_id = %s", (user_id,))
@@ -32,6 +33,7 @@ def get_user_balance(user_id):
             return result[0] if result else 100
     
 def update_user_balance(user_id, amount):
+    # Connect to databse, insert user id and associated balance
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("""
@@ -63,12 +65,13 @@ async def daily_gift(ctx):
     await ctx.send(f'You have gained +100 aura...  🎁\n**New Balance: {get_user_balance(user_id)}  💎**')
 
 async def show_leaderboard(ctx):
+    # Connect to database, fetch ALL balances
     with psycopg2.connect(DATABASE_URL) as conn:
         with conn.cursor() as cur:
             cur.execute("SELECT user_id, balance FROM user_balances")
-            user_balances = cur.fetchall()      # Returns a list of tuples
+            user_balances = cur.fetchall()      # Returns a list of tuples [(user_id, 100), (user_id, 200)...]
 
-    user_balances_with_names = {                # Convert tuples to a dictionary
+    user_balances_with_names = {                # Convert tuples to a dictionary, also check if user exists
         ctx.guild.get_member(uid).name: bal 
         for uid, bal in user_balances 
         if ctx.guild.get_member(uid)  }
