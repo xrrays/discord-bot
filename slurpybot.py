@@ -44,9 +44,9 @@ async def commands(ctx):
 
         message = (
                 '**BASICS:**\n'
-                '!hello, !abc, !help\n\n'
+                '!hello, !abc, !commands\n\n'
                 '**FORTNITE:**\n'
-                '!news, !shop, !stats <player name>, !map\n\n'
+                '!fort, !shop, !stats <player name>, !map\n\n'
                 '**GAMES:**\n'
                 '!play, !bal, !gift, !scores\n\n'
                 '**OTHERS:**\n'
