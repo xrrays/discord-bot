@@ -36,7 +36,7 @@ async def on_member_remove(member):
         await channel.send(f'**Goodbye {member.name}... 🚬**')
 
 @client.command()
-async def help(ctx):
+async def commands(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
         await ctx.send(f"This command can only be used in the general channel.")
