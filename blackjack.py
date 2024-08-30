@@ -4,12 +4,14 @@ import random
 import os
 import psycopg2
 import math
+import asyncio
 from datetime import datetime, timedelta
 
 DATABASE_URL = os.getenv("DATABASE_URL")
 deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
 last_gift_times = {}
 ongoing_games = {}
+game_lock = asyncio.Lock()
 
 def deal_card(deck):
     return random.choice(deck)
@@ -88,100 +90,100 @@ async def show_leaderboard(ctx):
 async def play_blackjack(ctx):
 
     user_id = ctx.author.id
-    if ongoing_games.get(user_id):
-        await ctx.send(f"You're already in a game! Finish your current game before starting a new one.")
-        return
-    
-    if ongoing_games:
-        await ctx.send(f"Another game is already in progress. Please wait for it to finish before starting a new game.")
-        return
+    async with game_lock:
+        if ongoing_games.get(user_id):
+            await ctx.send(f"You're already in a game! Finish your current game before starting a new one.")
+            return
+        
+        ongoing_games[user_id] = True
 
     # BETTING SETUP
-    ongoing_games[user_id] = True
-    balance = get_user_balance(user_id)
-    if balance == 0:
-        await ctx.send(f'You have no aura left **brokie!**')
-        return
-    await ctx.send(f'You have **{balance}** aura. How much would you like to bet?')
+    try:
+        balance = get_user_balance(user_id)
+        if balance == 0:
+            await ctx.send(f'You have no aura left **brokie!**')
+            return
+        await ctx.send(f'You have **{balance}** aura. How much would you like to bet?')
 
-    while True:
-        response = await ctx.bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=59.0)
-        try:
-            bet = int(response.content)
-            if bet < 1 or bet > balance:
-                await ctx.send(f"Invalid amount. Please enter an amount between 1 and **{balance}**.")
-            else:
-                break
-        except ValueError:
-            await ctx.send("Please enter a valid number.")
-
-    # GAME SETUP
-    dealer_hand = [deal_card(deck), deal_card(deck)]
-    player_hand = [deal_card(deck), deal_card(deck)]
-    await ctx.send(f"Dealer's Hand: [{dealer_hand[0]}, ?]\n")
-
-    # PLAYER ACTIONS
-    if calculate_hand(player_hand) == 21:
-        winnings = math.ceil(bet * 1.5)
-        update_user_balance(user_id, winnings)
-        await ctx.send(f'You got a natural blackjack: {player_hand} \nYou gained {winnings} aura!')
-    else: 
-        while calculate_hand(player_hand) < 22:
-            await ctx.send(f'Your Hand: {player_hand}  ➡️  {calculate_hand(player_hand)}\n''Do you want to hit or stay?')
+        while True:
             response = await ctx.bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=59.0)
-            action = response.content.lower()
-            if action == 'hit':
-                player_hand.append(deal_card(deck))
-                if calculate_hand(player_hand) > 21:
-                    await ctx.send(f"You busted... all over the place: {player_hand} ➡️ {calculate_hand(player_hand)}\n")
-            elif action == 'stay':
+            try:
+                bet = int(response.content)
+                if bet < 1 or bet > balance:
+                    await ctx.send(f"Invalid amount. Please enter an amount between 1 and **{balance}**.")
+                else:
+                    break
+            except ValueError:
+                await ctx.send("Please enter a valid number.")
+
+        # GAME SETUP
+        dealer_hand = [deal_card(deck), deal_card(deck)]
+        player_hand = [deal_card(deck), deal_card(deck)]
+        await ctx.send(f"Dealer's Hand: [{dealer_hand[0]}, ?]\n")
+
+        # PLAYER ACTIONS
+        if calculate_hand(player_hand) == 21:
+            winnings = math.ceil(bet * 1.5)
+            update_user_balance(user_id, winnings)
+            await ctx.send(f'You got a natural blackjack: {player_hand} \nYou gained {winnings} aura!')
+        else: 
+            while calculate_hand(player_hand) < 22:
+                await ctx.send(f'Your Hand: {player_hand}  ➡️  {calculate_hand(player_hand)}\n''Do you want to hit or stay?')
+                response = await ctx.bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=59.0)
+                action = response.content.lower()
+                if action == 'hit':
+                    player_hand.append(deal_card(deck))
+                    if calculate_hand(player_hand) > 21:
+                        await ctx.send(f"You busted... all over the place: {player_hand} ➡️ {calculate_hand(player_hand)}\n")
+                elif action == 'stay':
+                    break
+                else:
+                    await ctx.send("Invalid input. Pleaes type \"hit\" or \"stay\".")
+
+        # DEALER ACTIONS
+        dealer_actions = []
+        if sum(dealer_hand) > 17:
+            dealer_actions.append(f'Dealer Hand: {dealer_hand}  ➡️  {calculate_hand(dealer_hand)}')
+        while sum(dealer_hand) < 17: 
+            new_card = random.choice(deck)
+            dealer_hand.append(new_card)
+            dealer_actions.append(f'Dealer Hand: {dealer_hand}  ➡️  {calculate_hand(dealer_hand)}')
+            if calculate_hand(dealer_hand) > 21:
+                dealer_actions.append("The dealer busted... everywhere...\n")
                 break
-            else:
-                await ctx.send("Invalid input. Pleaes type \"hit\" or \"stay\".")
+        if dealer_actions:
+            await ctx.send("\n".join(dealer_actions))
 
-    # DEALER ACTIONS
-    dealer_actions = []
-    if sum(dealer_hand) > 17:
-        dealer_actions.append(f'Dealer Hand: {dealer_hand}  ➡️  {calculate_hand(dealer_hand)}')
-    while sum(dealer_hand) < 17: 
-        new_card = random.choice(deck)
-        dealer_hand.append(new_card)
-        dealer_actions.append(f'Dealer Hand: {dealer_hand}  ➡️  {calculate_hand(dealer_hand)}')
-        if calculate_hand(dealer_hand) > 21:
-            dealer_actions.append("The dealer busted... everywhere...\n")
-            break
-    if dealer_actions:
-        await ctx.send("\n".join(dealer_actions))
+        # GAME RESULTS
+        player_score = calculate_hand(player_hand)
+        dealer_score = calculate_hand(dealer_hand)
+        message =  (f'Final Scores:\n'
+                    f'You: {player_hand}  ➡️  {calculate_hand(player_hand)}\n'
+                    f'Dealer: {dealer_hand}  ➡️  {calculate_hand(dealer_hand)}\n')
 
-    # GAME RESULTS
-    player_score = calculate_hand(player_hand)
-    dealer_score = calculate_hand(dealer_hand)
-    message =  (f'Final Scores:\n'
-                f'You: {player_hand}  ➡️  {calculate_hand(player_hand)}\n'
-                f'Dealer: {dealer_hand}  ➡️  {calculate_hand(dealer_hand)}\n')
-
-    if player_score > 21:
-        update_user_balance(user_id, -bet)
-        await ctx.send(f'\u200B󠁼󠁼󠁼\n**You lost... you busted...  🃏**\n{message}'
-                        f'\n**New Balance: {get_user_balance(user_id)}  💎**')
-    
-    elif dealer_score > 21:
-        update_user_balance(user_id, bet)
-        await ctx.send(f'\u200B\n**You won, the dealer busted...  🃏**\n{message}'
-                       f'\n**New Balance: {get_user_balance(user_id)}  💎**')
-
-    elif player_score == dealer_score:
-        await ctx.send(f'\u200B\n**This game is a tie...  🃏**\n{message}'
-                       f'\n**New Balance: {get_user_balance(user_id)}  💎**')
-
-    elif player_score < dealer_score:
-        update_user_balance(user_id, -bet)
-        await ctx.send(f'\u200B\n**You lost...  🃏**\n{message}'
-                       f'\n**New Balance: {get_user_balance(user_id)}  💎**')
-
-    else: 
-        update_user_balance(user_id, bet)
-        await ctx.send(f'\u200B\n**You won... 🃏**\n{message}'
-                       f'\n**New Balance: {get_user_balance(user_id)}  💎**')
+        if player_score > 21:
+            update_user_balance(user_id, -bet)
+            await ctx.send(f'\u200B󠁼󠁼󠁼\n**You lost... you busted...  🃏**\n{message}'
+                            f'\n**New Balance: {get_user_balance(user_id)}  💎**')
         
-    del ongoing_games[user_id]
+        elif dealer_score > 21:
+            update_user_balance(user_id, bet)
+            await ctx.send(f'\u200B\n**You won, the dealer busted...  🃏**\n{message}'
+                        f'\n**New Balance: {get_user_balance(user_id)}  💎**')
+
+        elif player_score == dealer_score:
+            await ctx.send(f'\u200B\n**This game is a tie...  🃏**\n{message}'
+                        f'\n**New Balance: {get_user_balance(user_id)}  💎**')
+
+        elif player_score < dealer_score:
+            update_user_balance(user_id, -bet)
+            await ctx.send(f'\u200B\n**You lost...  🃏**\n{message}'
+                        f'\n**New Balance: {get_user_balance(user_id)}  💎**')
+
+        else: 
+            update_user_balance(user_id, bet)
+            await ctx.send(f'\u200B\n**You won... 🃏**\n{message}'
+                        f'\n**New Balance: {get_user_balance(user_id)}  💎**')
+    finally:    
+        async with game_lock:
+            del ongoing_games[user_id]
