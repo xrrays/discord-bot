@@ -92,7 +92,11 @@ async def play_blackjack(ctx):
     user_id = ctx.author.id
     async with game_lock:
         if ongoing_games.get(user_id):
-            await ctx.send(f"You're already in a game! Finish your current game before starting a new one.")
+            await ctx.send(f"You're **already** in a game, finish it!")
+            return
+        
+        if ongoing_games:
+            await ctx.send(f"Someone is in a game right now, **wait!**")
             return
         
         ongoing_games[user_id] = True
@@ -106,13 +110,16 @@ async def play_blackjack(ctx):
         await ctx.send(f'You have **{balance}** aura. How much would you like to bet?')
 
         while True:
-            response = await ctx.bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=59.0)
             try:
+                response = await ctx.bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=59.0)
                 bet = int(response.content)
                 if bet < 1 or bet > balance:
                     await ctx.send(f"Invalid amount. Please enter an amount between 1 and **{balance}**.")
                 else:
                     break
+            except asyncio.TimeoutError:
+                await ctx.send("You took too long to respond. The game has been canceled.")
+                return
             except ValueError:
                 await ctx.send("Please enter a valid number.")
 
@@ -127,18 +134,22 @@ async def play_blackjack(ctx):
             update_user_balance(user_id, winnings)
             await ctx.send(f'You got a natural blackjack: {player_hand} \nYou gained {winnings} aura!')
         else: 
-            while calculate_hand(player_hand) < 22:
-                await ctx.send(f'Your Hand: {player_hand}  ➡️  {calculate_hand(player_hand)}\n''Do you want to hit or stay?')
-                response = await ctx.bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=59.0)
-                action = response.content.lower()
-                if action == 'hit':
-                    player_hand.append(deal_card(deck))
-                    if calculate_hand(player_hand) > 21:
-                        await ctx.send(f"You busted... all over the place: {player_hand} ➡️ {calculate_hand(player_hand)}\n")
-                elif action == 'stay':
-                    break
-                else:
-                    await ctx.send("Invalid input. Pleaes type \"hit\" or \"stay\".")
+            try:
+                while calculate_hand(player_hand) < 22:
+                    await ctx.send(f'Your Hand: {player_hand}  ➡️  {calculate_hand(player_hand)}\n''Do you want to hit or stay?')
+                    response = await ctx.bot.wait_for('message', check=lambda message: message.author == ctx.author and message.channel == ctx.channel, timeout=59.0)
+                    action = response.content.lower()
+                    if action == 'hit':
+                        player_hand.append(deal_card(deck))
+                        if calculate_hand(player_hand) > 21:
+                            await ctx.send(f"You busted... all over the place: {player_hand} ➡️ {calculate_hand(player_hand)}\n")
+                    elif action == 'stay':
+                        break
+                    else:
+                        await ctx.send("Invalid input. Pleaes type \"hit\" or \"stay\".")
+            except asyncio.TimeoutError:
+                await ctx.send("You took too long to respond. The game has been canceled.")
+                return
 
         # DEALER ACTIONS
         dealer_actions = []
