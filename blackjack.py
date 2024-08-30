@@ -9,6 +9,7 @@ from datetime import datetime, timedelta
 DATABASE_URL = os.getenv("DATABASE_URL")
 deck = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
 last_gift_times = {}
+ongoing_games = {}
 
 def deal_card(deck):
     return random.choice(deck)
@@ -86,8 +87,17 @@ async def show_leaderboard(ctx):
 
 async def play_blackjack(ctx):
 
-    # BETTING SETUP
     user_id = ctx.author.id
+    if ongoing_games.get(user_id):
+        await ctx.send(f"You're already in a game! Finish your current game before starting a new one.")
+        return
+    
+    if ongoing_games:
+        await ctx.send(f"Another game is already in progress. Please wait for it to finish before starting a new game.")
+        return
+
+    # BETTING SETUP
+    ongoing_games[user_id] = True
     balance = get_user_balance(user_id)
     if balance == 0:
         await ctx.send(f'You have no aura left **brokie!**')
@@ -173,3 +183,5 @@ async def play_blackjack(ctx):
         update_user_balance(user_id, bet)
         await ctx.send(f'\u200B\n**You won... 🃏**\n{message}'
                        f'\n**New Balance: {get_user_balance(user_id)}  💎**')
+        
+    del ongoing_games[user_id]
