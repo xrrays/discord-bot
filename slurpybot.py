@@ -27,7 +27,7 @@ async def on_ready():
 async def on_member_join(member):
     channel = client.get_channel(int(os.getenv('GENERAL_ID')))
     if channel:
-        await channel.send(f'**Welcome {member.name}!**\n\n\Try **!commands** for available commands.')
+        await channel.send(f'**Welcome {member.name}!**\n\nTry **!commands** for available commands.')
 
 @client.event
 async def on_member_remove(member):
