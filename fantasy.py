@@ -55,9 +55,13 @@ async def points_for_leaderboard(ctx):
 
     output = "**🏆 Points For Leaderboard 🏆**\n"
     for rank, team in enumerate(sorted_teams, 1):
-        output += f"{rank}. {team['name']:<{spacing}} {float(team['points_for']):.2f} points\n"
+        name = team["name"]
+        points_for = float(team["points_for"])
+        
+        output += f"{rank}. {name:<{spacing}} {points_for:>8.2f} points\n"
 
-    await ctx.send(output)
+    await ctx.send(f"```{output}```")  
+
 
 # Option 3
 async def average_points_for(ctx):
@@ -208,10 +212,16 @@ async def main_menu(ctx):
             elif choice == '2':
                 await points_for_leaderboard(ctx)
             elif choice == '3':
-                await points_against_leaderboard(ctx)
+                await average_points_for(ctx)
             elif choice == '4':
-                await standings(ctx)
+                await points_against_leaderboard(ctx)
             elif choice == '5':
+                await average_points_against(ctx)
+            elif choice == '6':
+                await average_margin_of_victory_loss(ctx)
+            elif choice == '7':
+                await standings(ctx)
+            elif choice == '8':
                 await standings_vs_points_for_difference(ctx)
             elif choice == '0':
                 await ctx.send("exiting fantasy tracker. bye! 👋")
