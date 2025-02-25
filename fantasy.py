@@ -4,7 +4,15 @@ from tabulate import tabulate
 import os
 
 
-sc = OAuth2(None, None, from_file = 'oauth2.json')
+sc = OAuth2(None, None,
+    os.getenv("CONSUMER_KEY"),
+    os.getenv("CONSUMER_SECRET"),
+    access_token=os.getenv("ACCESS_TOKEN"),
+    refresh_token=os.getenv("REFRESH_TOKEN"),
+    token_time=float(os.getenv("TOKEN_TIME")),
+    token_type=os.getenv("TOKEN_TYPE")
+)
+
 gm = yfa.Game(sc, 'nhl')
 lg = gm.to_league((int(os.getenv('LEAGUE_ID'))))
 
