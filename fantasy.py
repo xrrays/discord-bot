@@ -28,6 +28,15 @@ async def current_week_scoreboard(ctx):
     matchups_data = lg.matchups()
     matchups = matchups_data["fantasy_content"]["league"][1]["scoreboard"]["0"]["matchups"]
 
+    team_names = [
+        teams["0"]["team"][0][2]["name"] for matchup_info in matchups.values() if matchup_info != "count"
+        for teams in [matchup_info["matchup"]["0"]["teams"]]
+    ] + [
+        teams["1"]["team"][0][2]["name"] for matchup_info in matchups.values() if matchup_info != "count"
+        for teams in [matchup_info["matchup"]["0"]["teams"]]
+    ]
+    max_name_length = max(len(name) for name in team_names) + 2  
+
     output = f"**🏆 Week {num_weeks} Scoreboard 🏆**\n```\n"
     for matchup_id, matchup_info in matchups.items():
         if matchup_id == "count":
@@ -41,31 +50,31 @@ async def current_week_scoreboard(ctx):
         team_2_name = teams["1"]["team"][0][2]["name"]
         team_2_points = float(teams["1"]["team"][1]["team_points"]["total"])
 
-        output += f"{team_1_name:<25} {team_1_points:.2f}  vs  {team_2_name:<25} {team_2_points:.2f}\n"
+        output += f"{team_1_name:<{max_name_length}} {team_1_points:.2f}  vs  {team_2_name:<{max_name_length}} {team_2_points:.2f}\n"
 
-    output += "```" 
-
+    output += "```"
     await ctx.send(output)
+
 
 # Option 2
 async def points_for_leaderboard(ctx):
     standings_data = lg.standings()
     sorted_teams = sorted(standings_data, key=lambda x: float(x['points_for']), reverse=True)
 
-    max_name_length = max(len(team["name"]) for team in sorted_teams)
+    max_name_length = max(len(team["name"]) for team in sorted_teams) + 2 
     spacing = max_name_length + 4  
 
-    output = "**🏆 Points For Leaderboard 🏆**\n```"
+    output = "**🏆 Points For Leaderboard 🏆**\n```\n"
     for rank, team in enumerate(sorted_teams, 1):
         name = team["name"]
         points_for = float(team["points_for"])
-        
-        output += f"**{rank}. {name:<{spacing}}** {points_for:>8.2f} points\n"
+
+        rank_spacing = " " if rank < 10 else ""
+
+        output += f"**{rank}.{rank_spacing}** {name:<{spacing}} {points_for:>8.2f} points\n"
 
     output += "```"
     await ctx.send(output)
-
-
 
 # Option 3
 async def average_points_for(ctx):
