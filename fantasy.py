@@ -29,15 +29,24 @@ async def current_week_scoreboard(ctx):
     matchups = matchups_data["fantasy_content"]["league"][1]["scoreboard"]["0"]["matchups"]
 
     team_names = []
+    team_scores = []
+    
     for matchup_id, matchup_info in matchups.items():
         if matchup_id == "count":
             continue
         matchup = matchup_info["matchup"]
         teams = matchup["0"]["teams"]
-        team_names.append(teams["0"]["team"][0][2]["name"])
-        team_names.append(teams["1"]["team"][0][2]["name"])
 
-    max_team_length = max(len(name) for name in team_names)  
+        team_1_name = teams["0"]["team"][0][2]["name"]
+        team_1_points = float(teams["0"]["team"][1]["team_points"]["total"])
+        team_2_name = teams["1"]["team"][0][2]["name"]
+        team_2_points = float(teams["1"]["team"][1]["team_points"]["total"])
+
+        team_names.extend([team_1_name, team_2_name])
+        team_scores.extend([team_1_points, team_2_points])
+
+    max_team_length = max(len(name) for name in team_names)
+    max_score_length = max(len(f"{score:.2f}") for score in team_scores) 
 
     output = f"**🏆 Week {num_weeks} Scoreboard 🏆**\n```\n"
     for matchup_id, matchup_info in matchups.items():
@@ -47,12 +56,15 @@ async def current_week_scoreboard(ctx):
         matchup = matchup_info["matchup"]
         teams = matchup["0"]["teams"]
 
-        team_1_name = teams["0"]["team"][0][2]["name"]  
+        team_1_name = teams["0"]["team"][0][2]["name"]
         team_1_points = float(teams["0"]["team"][1]["team_points"]["total"])
-        team_2_name = teams["1"]["team"][0][2]["name"]  
+        team_2_name = teams["1"]["team"][0][2]["name"]
         team_2_points = float(teams["1"]["team"][1]["team_points"]["total"])
 
-        output += f"{team_1_name:<{max_team_length}} {team_1_points:.2f}  vs  {team_2_name:<{max_team_length}} {team_2_points:.2f}\n"
+        output += (
+            f"{team_1_name:<{max_team_length}} {team_1_points:>{max_score_length}.2f}  vs  "
+            f"{team_2_name:<{max_team_length}} {team_2_points:>{max_score_length}.2f}\n"
+        )
 
     output += "```"
     await ctx.send(output)
@@ -78,9 +90,6 @@ async def points_for_leaderboard(ctx):
     output += "```"
     await ctx.send(output)
 
-
-
-
 # Option 3
 async def average_points_for(ctx):
     standings_data = lg.standings()
@@ -92,12 +101,15 @@ async def average_points_for(ctx):
     max_name_length = max(len(team["name"]) for team in sorted_teams)
     spacing = max_name_length + 4  
 
-    output = "**🏆 Points For Above/Below Average Leaderboard 🏆**\n"
+    output = "**🏆 Points For Above/Below Average Leaderboard 🏆**\n```"
     for rank, team in enumerate(sorted_teams, 1):
         deviation = float(team["points_for"]) - mean_points
         sign = "+" if deviation >= 0 else ""
-        output += f"{rank}. {team['name']:<{spacing}} {sign}{deviation:.2f}\n"
+        rank_spacing = " " if rank < 10 else ""  
 
+        output += f"{rank_spacing}{rank}. {team['name']:<{spacing}} {sign}{deviation:.2f}\n"
+
+    output += "```"
     await ctx.send(output)
 
 # Option 4
@@ -108,10 +120,12 @@ async def points_against_leaderboard(ctx):
     max_name_length = max(len(team["name"]) for team in sorted_teams)
     spacing = max_name_length + 4  
 
-    output = "**🏆 Points Against Leaderboard 🏆**\n"
+    output = "**🏆 Points Against Leaderboard 🏆**\n```"
     for rank, team in enumerate(sorted_teams, 1):
-        output += f"{rank}. {team['name']:<{spacing}} {float(team['points_against']):.2f} points against\n"
+        rank_spacing = " " if rank < 10 else ""  
+        output += f"{rank_spacing}{rank}. {team['name']:<{spacing}} {float(team['points_against']):.2f} points against\n"
 
+    output += "```"
     await ctx.send(output)
 
 # Option 5
@@ -125,12 +139,15 @@ async def average_points_against(ctx):
     max_name_length = max(len(team["name"]) for team in sorted_teams)
     spacing = max_name_length + 4  
 
-    output = "**🏆 Points Against Above/Below Average Leaderboard 🏆**\n"
+    output = "**🏆 Points Against Above/Below Average Leaderboard 🏆**\n```"
     for rank, team in enumerate(sorted_teams, 1):
         deviation = float(team["points_against"]) - mean_points_against
         sign = "+" if deviation >= 0 else ""
-        output += f"{rank}. {team['name']:<{spacing}} {sign}{deviation:.2f}\n"
+        rank_spacing = " " if rank < 10 else ""  
 
+        output += f"{rank_spacing}{rank}. {team['name']:<{spacing}} {sign}{deviation:.2f}\n"
+
+    output += "```"
     await ctx.send(output)
 
 # Option 6
@@ -143,12 +160,15 @@ async def average_margin_of_victory_loss(ctx):
     max_name_length = max(len(team["name"]) for team in sorted_teams)
     spacing = max_name_length + 4  
 
-    output = "**🏆 Average Margin of Victory/Loss 🏆**\n"
+    output = "**🏆 Average Margin of Victory/Loss 🏆**\n```"
     for rank, team in enumerate(sorted_teams, 1):
         avg_margin = (float(team["points_for"]) - float(team["points_against"])) / current_week
         sign = "+" if avg_margin >= 0 else ""
-        output += f"{rank}. {team['name']:<{spacing}} {sign}{avg_margin:.2f} avg margin per week\n"
+        rank_spacing = " " if rank < 10 else ""  
 
+        output += f"{rank_spacing}{rank}. {team['name']:<{spacing}} {sign}{avg_margin:.2f} avg margin per week\n"
+
+    output += "```"
     await ctx.send(output)
 
 # Option 7
@@ -156,22 +176,21 @@ async def standings(ctx):
     standings_data = lg.standings()
     sorted_teams = sorted(standings_data, key=lambda x: int(x["rank"]))
 
-    # Calculate proper spacing
     max_name_length = max(len(team["name"]) for team in sorted_teams)
-    spacing = max_name_length + 4  # Add padding for even alignment
+    spacing = max_name_length + 4  
 
-    output = "**🏆 Current Standings 🏆**\n"
+    output = "**🏆 Current Standings 🏆**\n```"
     for team in sorted_teams:
         rank = int(team["rank"])
         name = team["name"]
         points_for = float(team["points_for"])
         points_against = float(team["points_against"])
-        
-        # Format the output with spacing
-        output += f"{rank}. {name:<{spacing}} ({points_for:.2f} PF, {points_against:.2f} PA)\n"
+        rank_spacing = " " if rank < 10 else ""  
 
+        output += f"{rank_spacing}{rank}. {name:<{spacing}} ({points_for:.2f} PF, {points_against:.2f} PA)\n"
+
+    output += "```"
     await ctx.send(output)
-
 
 # Option 8
 async def standings_vs_points_for_difference(ctx):
@@ -183,15 +202,18 @@ async def standings_vs_points_for_difference(ctx):
     max_name_length = max(len(team["name"]) for team in sorted_standings)
     spacing = max_name_length + 4  
 
-    output = "**📊 Standings vs. Points For Difference 📊**\n"
+    output = "**📊 Standings vs. Points For Difference 📊**\n```"
     for team in sorted_standings:
         team_key = team["team_key"]
         standings_rank = int(team["rank"])
         points_for_rank = points_for_ranks[team_key]
         rank_difference = standings_rank - points_for_rank
         sign = "+" if rank_difference > 0 else ""
-        output += f"{team['name']:<{spacing}} {sign}{rank_difference}  (Rank {standings_rank} in standings, Rank {points_for_rank} in Points For)\n"
+        rank_spacing = " " if standings_rank < 10 else ""  
 
+        output += f"{rank_spacing}{standings_rank}. {team['name']:<{spacing}} {sign}{rank_difference}  (Rank {standings_rank} in standings, Rank {points_for_rank} in Points For)\n"
+
+    output += "```"
     await ctx.send(output)
 
 async def display_menu(ctx):

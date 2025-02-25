@@ -4,8 +4,9 @@
 import discord
 from discord.ext import commands
 from chai import chai_chat
-from apikeys import XOLTAIR_TOKEN, GENERAL_ID, CHAI_ID, STATUS_ID
+from apikeys import XOLTAIR_TOKEN, GENERAL_ID, CHAI_ID, STATUS_ID, FANTASY_ID
 from blackjack import play_blackjack
+from fantasy import main_menu
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -46,5 +47,14 @@ async def blackjack(ctx):
         await ctx.send(f"This command can only be used in the general channel.")
         return
     await play_blackjack(ctx)
+
+@client.command()
+async def test(ctx):
+    print("COMMAND RECIEVED")
+    channel = client.get_channel(FANTASY_ID)
+    if ctx.channel.id != channel:
+        await ctx.send('Use the **fantasy** channel for this command!')
+        return
+    await main_menu(ctx)
 
 client.run(XOLTAIR_TOKEN)
