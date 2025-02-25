@@ -1,9 +1,6 @@
 from yahoo_oauth import OAuth2
 import yahoo_fantasy_api as yfa
-from tabulate import tabulate
-import os
-import json
-import asyncio
+import os, json, asyncio
 
 oauth_data = {
     "access_token": os.getenv("ACCESS_TOKEN"),

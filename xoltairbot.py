@@ -6,7 +6,7 @@ from discord.ext import commands
 from chai import chai_chat
 from apikeys import XOLTAIR_TOKEN, GENERAL_ID, CHAI_ID, STATUS_ID, FANTASY_ID
 from blackjack import play_blackjack
-from fantasy import main_menu
+from xoltairfantasy import main_menu
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -26,7 +26,7 @@ async def on_ready():
         await channel.send(f'**BOT ONLINE**')
 
 @client.command()
-async def test(ctx):
+async def heyy(ctx):
     print("COMMAND RECIEVED")
     await ctx.send("button:", view=TestButtonView())
 
@@ -51,8 +51,7 @@ async def blackjack(ctx):
 @client.command()
 async def test(ctx):
     print("COMMAND RECIEVED")
-    channel = client.get_channel(FANTASY_ID)
-    if ctx.channel.id != channel:
+    if ctx.channel.id != FANTASY_ID:
         await ctx.send('Use the **fantasy** channel for this command!')
         return
     await main_menu(ctx)

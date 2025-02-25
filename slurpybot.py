@@ -40,7 +40,7 @@ async def on_member_remove(member):
 async def commands(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
     else:
 
         message = (
@@ -61,7 +61,7 @@ async def commands(ctx):
 async def hello(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
     else:
         await ctx.send("Hello, I am your bot!")
 
@@ -69,7 +69,7 @@ async def hello(ctx):
 async def abc(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
     else:
         await ctx.send("123")
 
@@ -80,28 +80,28 @@ async def abc(ctx):
 @client.command()
 async def fort(ctx):
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
         return
     await fort_news(ctx)
 
 @client.command()
 async def shop(ctx):
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
         return
     await fort_shop(ctx)
 
 @client.command()
 async def map(ctx):
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
         return
     await fort_map(ctx)
 
 @client.command()
 async def stats(ctx, player_name: str):
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
         return
     await fort_stats(ctx, player_name)
 
@@ -112,14 +112,14 @@ async def stats(ctx, player_name: str):
 @client.command()
 async def joke(ctx):
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
         return
     await tell_joke(ctx)
 
 @client.command()
 async def weather(ctx, *, city: str):
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
         return
     await send_weather(ctx, city=city)
 
@@ -154,7 +154,7 @@ async def fantasy(ctx):
 async def play(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
         return
     await play_blackjack(ctx)
 
@@ -162,7 +162,7 @@ async def play(ctx):
 async def blackjack(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
         return
     await play_blackjack(ctx)
 
@@ -170,7 +170,7 @@ async def blackjack(ctx):
 async def gift(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
         return
     await daily_gift(ctx)
 
@@ -178,7 +178,7 @@ async def gift(ctx):
 async def scores(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
         return
     await show_leaderboard(ctx)
 
@@ -186,15 +186,23 @@ async def scores(ctx):
 async def leaderboard(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
         return
     await show_leaderboard(ctx)
+
+@client.command()
+async def balance(ctx):
+    print("COMMAND RECIEVED")
+    if ctx.channel.id != int(os.getenv('GENERAL_ID')):
+        await ctx.send(f"This command can only be used in the **general** channel.")
+        return
+    await print_balance(ctx, ctx.author.id)
 
 @client.command()
 async def bal(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
-        await ctx.send(f"This command can only be used in the general channel.")
+        await ctx.send(f"This command can only be used in the **general** channel.")
         return
     await print_balance(ctx, ctx.author.id)
 
