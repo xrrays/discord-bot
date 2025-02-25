@@ -15,6 +15,10 @@ A chatbot feature that supports several characters that the user can have a conv
 #### Commands: !fort, !shop, !map, !stats playerName
 The bot uses the Fortnite API to fetch and relay data from Fortnite to the user. The data that the user can request includes current Fortnite news, the skins currently in the Fortnite item shop and their prices, an image of what the Fortnite map currently looks like and the statistics of any player, including their kills, deathes, wins and time played.
 
+### Fantasy Information
+#### Commands:
+DESCRIPTION
+
 ### Others
 #### Commands: !weather cityName, !joke, !goat, !commands, !hello, !abc
 The weather command provides the user with the current weather and timezone information about any city in the world.  

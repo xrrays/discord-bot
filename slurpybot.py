@@ -6,6 +6,7 @@ from blackjack import play_blackjack, print_balance, daily_gift, show_leaderboar
 from fortnite import fort_news, fort_shop, fort_stats, fort_map
 from others import send_weather, tell_joke, get_lebron
 from chai import chai_chat
+from fantasy import main_menu
 import os
 import webserver
 
@@ -137,12 +138,28 @@ async def chat(ctx):
         return
     await chai_chat(ctx)
 
+@client.command()
+async def fantasy(ctx):
+    print("COMMAND RECIEVED")
+    if ctx.channel.id != int(os.getenv('FANTASY_ID')):
+        await ctx.send('Use the **fantasy** channel for this command!')
+        return
+    await main_menu(ctx)
+
 ################################################################################################################################################
 #################################################################### GAMES #####################################################################
 ################################################################################################################################################
 
 @client.command()
 async def play(ctx):
+    print("COMMAND RECIEVED")
+    if ctx.channel.id != int(os.getenv('GENERAL_ID')):
+        await ctx.send(f"This command can only be used in the general channel.")
+        return
+    await play_blackjack(ctx)
+
+@client.command()
+async def blackjack(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
         await ctx.send(f"This command can only be used in the general channel.")
@@ -159,6 +176,14 @@ async def gift(ctx):
 
 @client.command()
 async def scores(ctx):
+    print("COMMAND RECIEVED")
+    if ctx.channel.id != int(os.getenv('GENERAL_ID')):
+        await ctx.send(f"This command can only be used in the general channel.")
+        return
+    await show_leaderboard(ctx)
+
+@client.command()
+async def leaderboard(ctx):
     print("COMMAND RECIEVED")
     if ctx.channel.id != int(os.getenv('GENERAL_ID')):
         await ctx.send(f"This command can only be used in the general channel.")
