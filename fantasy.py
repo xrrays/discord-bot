@@ -37,7 +37,7 @@ async def current_week_scoreboard(ctx):
         team_names.append(teams["0"]["team"][0][2]["name"])
         team_names.append(teams["1"]["team"][0][2]["name"])
 
-    max_team_length = min(max(len(name) for name in team_names), 22)  
+    max_team_length = max(len(name) for name in team_names)  
 
     output = f"**🏆 Week {num_weeks} Scoreboard 🏆**\n```\n"
     for matchup_id, matchup_info in matchups.items():
@@ -47,15 +47,16 @@ async def current_week_scoreboard(ctx):
         matchup = matchup_info["matchup"]
         teams = matchup["0"]["teams"]
 
-        team_1_name = teams["0"]["team"][0][2]["name"][:22]  
+        team_1_name = teams["0"]["team"][0][2]["name"]  
         team_1_points = float(teams["0"]["team"][1]["team_points"]["total"])
-        team_2_name = teams["1"]["team"][0][2]["name"][:22]  
+        team_2_name = teams["1"]["team"][0][2]["name"]  
         team_2_points = float(teams["1"]["team"][1]["team_points"]["total"])
 
         output += f"{team_1_name:<{max_team_length}} {team_1_points:.2f}  vs  {team_2_name:<{max_team_length}} {team_2_points:.2f}\n"
 
     output += "```"
     await ctx.send(output)
+
 
 # Option 2
 async def points_for_leaderboard(ctx):
