@@ -69,7 +69,6 @@ async def current_week_scoreboard(ctx):
     output += "```"
     await ctx.send(output)
 
-
 # Option 2
 async def points_for_leaderboard(ctx):
     standings_data = lg.standings()
@@ -211,7 +210,9 @@ async def standings_vs_points_for_difference(ctx):
         sign = "+" if rank_difference > 0 else ""
         rank_spacing = " " if standings_rank < 10 else ""  
 
-        output += f"{rank_spacing}{standings_rank}. {team['name']:<{spacing}} {sign}{rank_difference}  (Rank {standings_rank} in standings, Rank {points_for_rank} in Points For)\n"
+        diff_spacing = " " if rank_difference == 0 else ""
+
+        output += f"{rank_spacing}{standings_rank}. {team['name']:<{spacing}} {sign}{diff_spacing}{rank_difference}  (Rank {standings_rank} in standings, Rank {points_for_rank} in Points For)\n"
 
     output += "```"
     await ctx.send(output)
@@ -236,16 +237,12 @@ async def main_menu(ctx):
         await ctx.send("you already have an active fantasy session... ⚠️ ")
         return
     active_users.add(ctx.author.id)
-
     await display_menu(ctx) 
-
     def check(msg):
         return msg.author == ctx.author and msg.channel == ctx.channel
-
     while True:
         try:
-            msg = await ctx.bot.wait_for("message", check=check, timeout=60.0)
-            
+            msg = await ctx.bot.wait_for("message", check=check, timeout=60.0)            
             choice = msg.content.strip()
             if choice == '1':
                 await current_week_scoreboard(ctx)
@@ -267,15 +264,13 @@ async def main_menu(ctx):
                 await ctx.send("exiting fantasy tracker. bye! 👋")
                 break
             else:
-                await ctx.send("invalid choice... ❌ ")
-        
+                await ctx.send("invalid choice... ❌ ")        
         except asyncio.TimeoutError:
             await ctx.send("timeout reached. exiting menu. ⏳")
             break
-
     active_users.remove(ctx.author.id)
 
-#main_menu()
-#standings_data = lg.standings()
-#print("Raw standings data:", standings_data)
+# main_menu()
+# standings_data = lg.standings()
+# print("Raw standings data:", standings_data)
 
