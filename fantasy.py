@@ -1,12 +1,12 @@
 from yahoo_oauth import OAuth2
 import yahoo_fantasy_api as yfa
-from apikeys import LEAGUE_ID
 from tabulate import tabulate
+import os
 
 
 sc = OAuth2(None, None, from_file = 'oauth2.json')
 gm = yfa.Game(sc, 'nhl')
-lg = gm.to_league(LEAGUE_ID)
+lg = gm.to_league((int(os.getenv('LEAGUE_ID'))))
 
 num_weeks = lg.current_week()  # number of weeks
 
