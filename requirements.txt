@@ -10,3 +10,4 @@ simplejson==3.19.2
 psycopg2-binary
 yahoo_oauth
 yahoo_fantasy_api
+tabulate
