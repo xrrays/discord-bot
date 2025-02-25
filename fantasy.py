@@ -2,16 +2,23 @@ from yahoo_oauth import OAuth2
 import yahoo_fantasy_api as yfa
 from tabulate import tabulate
 import os
+import json
 
 
-sc = OAuth2(None, None,
-    os.getenv("CONSUMER_KEY"),
-    os.getenv("CONSUMER_SECRET"),
-    access_token=os.getenv("ACCESS_TOKEN"),
-    refresh_token=os.getenv("REFRESH_TOKEN"),
-    token_time=float(os.getenv("TOKEN_TIME")),
-    token_type=os.getenv("TOKEN_TYPE")
-)
+oauth_data = {
+    "access_token": os.getenv("ACCESS_TOKEN"),
+    "consumer_key": os.getenv("CONSUMER_KEY"),
+    "consumer_secret": os.getenv("CONSUMER_SECRET"),
+    "guid": None,
+    "refresh_token": os.getenv("REFRESH_TOKEN"),
+    "token_time": os.getenv("TOKEN_TIME"),
+    "token_type": os.getenv("TOKEN_TYPE")
+}
+
+with open("oauth2_env.json", "w") as f:
+    json.dump(oauth_data, f)
+
+sc = OAuth2(None, None, from_file="oauth2_env.json")
 
 gm = yfa.Game(sc, 'nhl')
 lg = gm.to_league((int(os.getenv('LEAGUE_ID'))))
