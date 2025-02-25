@@ -21,7 +21,7 @@ with open("oauth2_env.json", "w") as f:
 sc = OAuth2(None, None, from_file="oauth2_env.json")
 
 gm = yfa.Game(sc, 'nhl')
-lg = gm.to_league((int(os.getenv('LEAGUE_ID'))))
+lg = gm.to_league((os.getenv('LEAGUE_ID')))
 
 num_weeks = lg.current_week()  # number of weeks
 
