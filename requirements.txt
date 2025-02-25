@@ -8,3 +8,4 @@ jokeapi==1.0.5
 requests==2.32.0
 simplejson==3.19.2
 psycopg2-binary
+yahoo_oauth
