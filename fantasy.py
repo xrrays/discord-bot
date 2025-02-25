@@ -11,7 +11,7 @@ oauth_data = {
     "consumer_secret": os.getenv("CONSUMER_SECRET"),
     "guid": None,
     "refresh_token": os.getenv("REFRESH_TOKEN"),
-    "token_time": os.getenv("TOKEN_TIME"),
+    "token_time": float(os.getenv("TOKEN_TIME", "0")),
     "token_type": os.getenv("TOKEN_TYPE")
 }
 
