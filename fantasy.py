@@ -27,21 +27,23 @@ active_users = set()
 async def current_week_scoreboard(ctx):
     matchups_data = lg.matchups()
     matchups = matchups_data["fantasy_content"]["league"][1]["scoreboard"]["0"]["matchups"]
-    
-    output = f"**🏆 Week {num_weeks} Scoreboard 🏆**\n"
+
+    output = f"**🏆 Week {num_weeks} Scoreboard 🏆**\n```\n"
     for matchup_id, matchup_info in matchups.items():
         if matchup_id == "count":
             continue
-        
+
         matchup = matchup_info["matchup"]
         teams = matchup["0"]["teams"]
-        
-        team_1_name = teams["0"]["team"][0][2]["name"]
-        team_1_points = teams["0"]["team"][1]["team_points"]["total"]
-        team_2_name = teams["1"]["team"][0][2]["name"]
-        team_2_points = teams["1"]["team"][1]["team_points"]["total"]
 
-        output += f"{team_1_name:<25} {team_1_points}  vs  {team_2_name:<25} {team_2_points}\n"
+        team_1_name = teams["0"]["team"][0][2]["name"]
+        team_1_points = float(teams["0"]["team"][1]["team_points"]["total"])
+        team_2_name = teams["1"]["team"][0][2]["name"]
+        team_2_points = float(teams["1"]["team"][1]["team_points"]["total"])
+
+        output += f"{team_1_name:<25} {team_1_points:.2f}  vs  {team_2_name:<25} {team_2_points:.2f}\n"
+
+    output += "```" 
 
     await ctx.send(output)
 
@@ -53,14 +55,16 @@ async def points_for_leaderboard(ctx):
     max_name_length = max(len(team["name"]) for team in sorted_teams)
     spacing = max_name_length + 4  
 
-    output = "**🏆 Points For Leaderboard 🏆**\n"
+    output = "**🏆 Points For Leaderboard 🏆**\n```"
     for rank, team in enumerate(sorted_teams, 1):
         name = team["name"]
         points_for = float(team["points_for"])
         
-        output += f"{rank}. {name:<{spacing}} {points_for:>8.2f} points\n"
+        output += f"**{rank}. {name:<{spacing}}** {points_for:>8.2f} points\n"
 
-    await ctx.send(f"```{output}```")  
+    output += "```"
+    await ctx.send(output)
+
 
 
 # Option 3
