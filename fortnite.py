@@ -3,9 +3,11 @@
 import math
 from datetime import datetime
 import fortnite_api
-import os
+import os, aiohttp
+from apikeys import FORTNITE_API as FORTNITE_API_LOCAL
 
 fort_api = fortnite_api.FortniteAPI(api_key=os.getenv('FORTNITE_API'))
+API_KEY = os.getenv("FORTNITE_API") or FORTNITE_API_LOCAL
 
 def chunk_message(message, chunk_size=2000):
     for i in range(0, len(message), chunk_size):
@@ -28,50 +30,48 @@ async def fort_news(ctx):
 
 async def fort_shop(ctx):
     print("COMMAND RECEIVED")
+    import aiohttp, os
+    from datetime import datetime
 
-    shop_data = fort_api.shop.fetch()
-    shop_date = shop_data.date.strftime('%B %d, %Y')
-    daily_items = shop_data.daily.entries if shop_data.daily else []
-    featured_items = shop_data.featured.entries if shop_data.featured else []
+    API_KEY = os.getenv("FORTNITE_API") or FORTNITE_API_LOCAL
+    if not API_KEY:
+        return await ctx.send("missing FORTNITE_API key (env or apikeys.py).")
 
-    categories = {}
-    seen_skins = {}
-    shop = []
-    shop.append(f'**Shop Date:** {shop_date}  🛍️\n')
+    url = "https://fortnite-api.com/v2/shop"
+    headers = {"Authorization": str(API_KEY)}
 
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url, headers=headers) as resp:
+            if resp.status != 200:
+                return await ctx.send(f"Shop error: HTTP {resp.status}")
+            payload = await resp.json()
 
-    # Check if skin is a duplicate/bundle, then add to seen skins dictionary with category, skin name and price
-    def add_to_category(category_name, cosmetic_name, price):
-        if cosmetic_name not in seen_skins or price < seen_skins[cosmetic_name]['price']:
-            seen_skins[cosmetic_name] = {'price': price, 'category': category_name}
-            # seen_skins = comestic_name: {price: price, category: category_name}
+    data = payload.get("data", {})
+    entries = data.get("entries", []) or []
+    if not entries:
+        return await ctx.send("⚠️ Shop returned no entries today.")
 
-    for item in featured_items:
-        category_name = item.layout.name if item.layout else 'Unknown'
-        for cosmetic in item.items:
-            if cosmetic.type.value == 'outfit':
-                add_to_category(category_name, cosmetic.name, item.final_price)
-                
-    for item in daily_items:
-        category_name = 'Daily'
-        for cosmetic in item.items:
-            if cosmetic.type.value == 'outfit':
-                add_to_category(category_name, cosmetic.name, item.final_price)
+    shop_date = datetime.fromisoformat(data["date"].replace("Z", "+00:00")).strftime("%B %d, %Y")
 
-    # Check the category from seen skins and adds it to the categories dictionary
-    for skin, data in seen_skins.items():
-        if data['category'] not in categories:
-            categories[data['category']] = []
-        categories[data['category']].append(f"{skin} ({data['price']})")
-        # Add the skin and price values from seen skins to the categories dictionary
+    # collect section/category names
+    categories = set()
+    for entry in entries:
+        cat = (
+            ((entry.get("layout") or {}).get("name"))
+            or ((entry.get("section") or {}).get("name"))
+            or "Unknown"
+        )
+        categories.add(cat)
 
-    for category, items in categories.items():
-        category_item = f'**{category}** - {", ".join(items)}\n'
-        shop.append(category_item)
+    # build simple output: just the category names
+    lines = [f'**Shop Date:** {shop_date}  🛍️\n']
+    for cat in sorted(categories):
+        lines.append(f'• {cat}')
 
-    message = '\n'.join(shop)
+    message = "\n".join(lines)
     for chunk in chunk_message(message):
         await ctx.send(chunk)
+
 
 async def fort_stats(ctx, player_name: str):
     print("COMMAND RECIEVED")

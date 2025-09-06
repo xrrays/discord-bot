@@ -7,6 +7,7 @@ from chai import chai_chat
 from apikeys import XOLTAIR_TOKEN, GENERAL_ID, CHAI_ID, STATUS_ID, FANTASY_ID
 from blackjack import play_blackjack
 from xoltairfantasy import main_menu
+from fortnite import fort_shop
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -55,5 +56,10 @@ async def test(ctx):
         await ctx.send('Use the **fantasy** channel for this command!')
         return
     await main_menu(ctx)
+
+@client.command()
+async def shop(ctx):
+    print("COMMAND RECIEVED")
+    await fort_shop(ctx)
 
 client.run(XOLTAIR_TOKEN)
