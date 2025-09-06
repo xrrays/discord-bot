@@ -33,26 +33,16 @@ async def fort_news(ctx):
 
 async def fort_shop(ctx):
     print("COMMAND RECEIVED")
-    import aiohttp, os
-    from datetime import datetime
-
-    API_KEY = os.getenv("FORTNITE_API") or FORTNITE_API_LOCAL
-    if not API_KEY:
-        return await ctx.send("missing FORTNITE_API key (env or apikeys.py).")
 
     url = "https://fortnite-api.com/v2/shop"
     headers = {"Authorization": str(API_KEY)}
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers) as resp:
-            if resp.status != 200:
-                return await ctx.send(f"Shop error: HTTP {resp.status}")
             payload = await resp.json()
 
     data = payload.get("data", {})
     entries = data.get("entries", []) or []
-    if not entries:
-        return await ctx.send("⚠️ Shop returned no entries today.")
 
     shop_date = datetime.fromisoformat(data["date"].replace("Z", "+00:00")).strftime("%B %d, %Y")
 
