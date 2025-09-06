@@ -4,7 +4,10 @@ import math
 from datetime import datetime
 import fortnite_api
 import os, aiohttp
-from apikeys import FORTNITE_API as FORTNITE_API_LOCAL
+try:
+    from apikeys import FORTNITE_API as FORTNITE_API_LOCAL
+except ImportError:
+    FORTNITE_API_LOCAL = None
 
 fort_api = fortnite_api.FortniteAPI(api_key=os.getenv('FORTNITE_API'))
 API_KEY = os.getenv("FORTNITE_API") or FORTNITE_API_LOCAL
