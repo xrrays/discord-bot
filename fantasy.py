@@ -215,7 +215,8 @@ async def standings_vs_points_for_difference(ctx):
     await ctx.send(output)
 
 # Option 9
-def records_and_history():
+# Option 9
+async def records_and_history(ctx):
     print("\n🏆 League Records & History 🏆\n")
 
     # use only completed weeks (exclude the current in-progress week)
@@ -223,7 +224,7 @@ def records_and_history():
     last_completed_week = current_week - 1
 
     if last_completed_week < 1:
-        print("Not enough completed weeks to generate records yet.\n")
+        await ctx.send("not enough completed weeks to generate records yet.\n")
         return
 
     lowest = None            # lowest single-week score
@@ -308,13 +309,18 @@ def records_and_history():
                     "week": week,
                 }
 
+    # build discord message instead of printing
+    output = "**🏆 League Records & History 🏆**\n```"
+
     if lowest:
-        print("📉 Lowest Single-Week Score")
-        print(f"{lowest['name']}: {lowest['points']:.2f} points (Week {lowest['week']})\n")
+        output += (
+            f"\n📉 Lowest Single-Week Score\n"
+            f"{lowest['name']}: {lowest['points']:.2f} points (Week {lowest['week']})\n"
+        )
 
     if blowout:
-        print("💥 Biggest Blowout")
-        print(
+        output += (
+            f"\n💥 Biggest Blowout\n"
             f"{blowout['winner']} defeated {blowout['loser']} by a margin of "
             f"{blowout['margin']:.2f}: "
             f"{blowout['winner_points']:.2f} - {blowout['loser_points']:.2f} "
@@ -322,8 +328,8 @@ def records_and_history():
         )
 
     if closest:
-        print("🤏 Closest Matchup")
-        print(
+        output += (
+            f"\n🤏 Closest Matchup\n"
             f"{closest['winner']} defeated {closest['loser']} by a margin of "
             f"{closest['margin']:.2f}: "
             f"{closest['winner_points']:.2f} - {closest['loser_points']:.2f} "
@@ -331,13 +337,16 @@ def records_and_history():
         )
 
     if bad_beat:
-        print("😵 Highest Score in a Loss")
-        print(
+        output += (
+            f"\n😵 Highest Score in a Loss\n"
             f"{bad_beat['loser']} scores {bad_beat['loser_points']:.2f} in a loss to "
             f"{bad_beat['winner']}: "
             f"{bad_beat['loser_points']:.2f} - {bad_beat['winner_points']:.2f} "
             f"(Week {bad_beat['week']})\n"
         )
+
+    output += "```"
+    await ctx.send(output)
 
 async def display_menu(ctx):
     menu = (
