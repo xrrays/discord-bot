@@ -214,6 +214,131 @@ async def standings_vs_points_for_difference(ctx):
     output += "```"
     await ctx.send(output)
 
+# Option 9
+def records_and_history():
+    print("\n🏆 League Records & History 🏆\n")
+
+    # use only completed weeks (exclude the current in-progress week)
+    current_week = int(lg.current_week())
+    last_completed_week = current_week - 1
+
+    if last_completed_week < 1:
+        print("Not enough completed weeks to generate records yet.\n")
+        return
+
+    lowest = None            # lowest single-week score
+    blowout = None           # biggest blowout
+    closest = None           # closest non-tie matchup
+    bad_beat = None          # highest score in a loss
+
+    for week in range(1, last_completed_week + 1):
+        matchups_data = lg.matchups(week)
+        try:
+            matchups = matchups_data["fantasy_content"]["league"][1]["scoreboard"]["0"]["matchups"]
+        except KeyError:
+            continue
+
+        for matchup_id, matchup_info in matchups.items():
+            if matchup_id == "count":
+                continue
+
+            matchup = matchup_info["matchup"]
+            teams = matchup["0"]["teams"]
+
+            # grab both teams
+            entries = []
+            for i in ("0", "1"):
+                team = teams[i]["team"]
+                name = team[0][2]["name"]
+                points = float(team[1]["team_points"]["total"])
+                entries.append({"name": name, "points": points})
+
+            team1, team2 = entries[0], entries[1]
+
+            # lowest single-week score
+            for t in (team1, team2):
+                if lowest is None or t["points"] < lowest["points"]:
+                    lowest = {
+                        "name": t["name"],
+                        "points": t["points"],
+                        "week": week,
+                    }
+
+            # skip ties for winner/loser-based records
+            if team1["points"] == team2["points"]:
+                continue
+
+            if team1["points"] > team2["points"]:
+                winner, loser = team1, team2
+            else:
+                winner, loser = team2, team1
+
+            margin = abs(winner["points"] - loser["points"])
+
+            # biggest blowout
+            if blowout is None or margin > blowout["margin"]:
+                blowout = {
+                    "winner": winner["name"],
+                    "loser": loser["name"],
+                    "winner_points": winner["points"],
+                    "loser_points": loser["points"],
+                    "margin": margin,
+                    "week": week,
+                }
+
+            # closest matchup (non-zero margin)
+            if closest is None or margin < closest["margin"]:
+                closest = {
+                    "winner": winner["name"],
+                    "loser": loser["name"],
+                    "winner_points": winner["points"],
+                    "loser_points": loser["points"],
+                    "margin": margin,
+                    "week": week,
+                }
+
+            # highest score in a loss (bad beat)
+            if bad_beat is None or loser["points"] > bad_beat["loser_points"] if bad_beat else True:
+                bad_beat = {
+                    "loser": loser["name"],
+                    "winner": winner["name"],
+                    "loser_points": loser["points"],
+                    "winner_points": winner["points"],
+                    "margin": margin,
+                    "week": week,
+                }
+
+    if lowest:
+        print("📉 Lowest Single-Week Score")
+        print(f"{lowest['name']}: {lowest['points']:.2f} points (Week {lowest['week']})\n")
+
+    if blowout:
+        print("💥 Biggest Blowout")
+        print(
+            f"{blowout['winner']} defeated {blowout['loser']} by a margin of "
+            f"{blowout['margin']:.2f}: "
+            f"{blowout['winner_points']:.2f} - {blowout['loser_points']:.2f} "
+            f"(Week {blowout['week']})\n"
+        )
+
+    if closest:
+        print("🤏 Closest Matchup")
+        print(
+            f"{closest['winner']} defeated {closest['loser']} by a margin of "
+            f"{closest['margin']:.2f}: "
+            f"{closest['winner_points']:.2f} - {closest['loser_points']:.2f} "
+            f"(Week {closest['week']})\n"
+        )
+
+    if bad_beat:
+        print("😵 Highest Score in a Loss")
+        print(
+            f"{bad_beat['loser']} scores {bad_beat['loser_points']:.2f} in a loss to "
+            f"{bad_beat['winner']}: "
+            f"{bad_beat['loser_points']:.2f} - {bad_beat['winner_points']:.2f} "
+            f"(Week {bad_beat['week']})\n"
+        )
+
 async def display_menu(ctx):
     menu = (
         "**🏒 Fantasy Tracker Menu 🏒**\n"
@@ -225,6 +350,7 @@ async def display_menu(ctx):
         "6️⃣ Average Margin of Victory/Loss\n"
         "7️⃣ Standings\n"
         "8️⃣ Standings vs Points For Difference\n"
+        "9️⃣ Records & History\n"
         "0️⃣ Exit"
     )
     await ctx.send(menu)
@@ -257,8 +383,10 @@ async def main_menu(ctx):
                 await standings(ctx)
             elif choice == '8':
                 await standings_vs_points_for_difference(ctx)
+            elif choice == '9':
+                await records_and_history(ctx)
             elif choice == '0':
-                await ctx.send("exiting fantasy tracker. bye! 👋")
+                await ctx.send("exiting fantasy tracker. bye!👋")
                 break
             else:
                 await ctx.send("invalid choice... ❌ ")        

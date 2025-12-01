@@ -47,7 +47,21 @@ async def chai_chat(ctx):
             return
 
         # CONNECT TO NEW CHAT
-        chat = await character_client.connect()
+        try:  
+            chat = await character_client.connect()
+
+        except TypeError as e:
+            await ctx.send(
+                "**Character chat failed to start.**\n"
+                "Fix: update your Python packages:\n"
+                "```bash\n"
+                "pip install -U characterai websockets\n"
+                "# or, if it persists:\n"
+                "pip install characterai==0.7.3 websockets==10.4\n"
+                "```\n"
+                f"_details_: `{e}`"
+            )
+            return
         new_chat, welcome_message = await chat.new_chat(char_id, user_id)
         await ctx.send(f'You are now chatting with **{char_name}**! Type *quit* if you want to end the chat.\n\n{welcome_message.text}')
     except asyncio.TimeoutError:
