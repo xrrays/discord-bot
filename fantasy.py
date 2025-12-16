@@ -45,7 +45,7 @@ async def current_week_scoreboard(ctx):
     max_team_length = max(len(name) for name in team_names)
     max_score_length = max(len(f"{score:.2f}") for score in team_scores) 
 
-    output = f"**🏆 Week {num_weeks} Scoreboard 🏆**\n```\n"
+    output = f"**🏆 Week {lg.current_week()} Scoreboard 🏆**\n```\n"
     for matchup_id, matchup_info in matchups.items():
         if matchup_id == "count":
             continue
@@ -215,7 +215,6 @@ async def standings_vs_points_for_difference(ctx):
     await ctx.send(output)
 
 # Option 9
-# Option 9
 async def records_and_history(ctx):
     print("\n🏆 League Records & History 🏆\n")
 
@@ -227,7 +226,8 @@ async def records_and_history(ctx):
         await ctx.send("not enough completed weeks to generate records yet.\n")
         return
 
-    lowest = None            # lowest single-week score
+    lowest_weeks = []        # lowest single-week score
+    highest_weeks = []       # most points in a single week
     blowout = None           # biggest blowout
     closest = None           # closest non-tie matchup
     bad_beat = None          # highest score in a loss
@@ -256,14 +256,15 @@ async def records_and_history(ctx):
 
             team1, team2 = entries[0], entries[1]
 
-            # lowest single-week score
+            # track all single-week scores
             for t in (team1, team2):
-                if lowest is None or t["points"] < lowest["points"]:
-                    lowest = {
-                        "name": t["name"],
-                        "points": t["points"],
-                        "week": week,
-                    }
+                entry = {
+                    "name": t["name"],
+                    "points": t["points"],
+                    "week": week,
+                }
+                highest_weeks.append(entry)
+                lowest_weeks.append(entry)
 
             # skip ties for winner/loser-based records
             if team1["points"] == team2["points"]:
@@ -299,7 +300,7 @@ async def records_and_history(ctx):
                 }
 
             # highest score in a loss (bad beat)
-            if bad_beat is None or loser["points"] > bad_beat["loser_points"] if bad_beat else True:
+            if bad_beat is None or loser["points"] > bad_beat["loser_points"]:
                 bad_beat = {
                     "loser": loser["name"],
                     "winner": winner["name"],
@@ -308,15 +309,23 @@ async def records_and_history(ctx):
                     "margin": margin,
                     "week": week,
                 }
+            
+    # sort and keep top/bottom 3
+    highest_weeks = sorted(highest_weeks, key=lambda x: x["points"], reverse=True)[:3]
+    lowest_weeks = sorted(lowest_weeks, key=lambda x: x["points"])[:3]
 
     # build discord message instead of printing
     output = "**🏆 League Records & History 🏆**\n```"
 
-    if lowest:
-        output += (
-            f"\n📉 Lowest Single-Week Score\n"
-            f"{lowest['name']}: {lowest['points']:.2f} points (Week {lowest['week']})\n"
-        )
+    if highest_weeks:
+        output += "\n🔥 Top 3 Highest Single-Week Scores\n"
+        for i, hw in enumerate(highest_weeks, 1):
+            output += f"{i}. {hw['name']} — {hw['points']:.2f} points (Week {hw['week']})\n"
+        
+    if lowest_weeks:
+        output += "\n🗑️ Top 3 Lowest Single-Week Scores\n"
+        for i, lw in enumerate(lowest_weeks, 1):
+            output += f"{i}. {lw['name']} — {lw['points']:.2f} points (Week {lw['week']})\n"
 
     if blowout:
         output += (
