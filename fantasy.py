@@ -264,7 +264,9 @@ async def records_and_history(ctx):
                     "week": week,
                 }
                 highest_weeks.append(entry)
-                lowest_weeks.append(entry)
+                # exclude week 1 from lowest single-week scores
+                if week != 1:
+                    lowest_weeks.append(entry)
 
             # skip ties for winner/loser-based records
             if team1["points"] == team2["points"]:
