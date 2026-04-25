@@ -11,3 +11,4 @@ psycopg2-binary
 yahoo_oauth
 yahoo_fantasy_api
 tabulate
+openai

@@ -8,6 +8,7 @@ from apikeys import XOLTAIR_TOKEN, GENERAL_ID, CHAI_ID, STATUS_ID, FANTASY_ID
 from blackjack import play_blackjack
 from xoltairfantasy import main_menu
 from fortnite import fort_shop
+from chat import get_ai_response
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -25,6 +26,36 @@ async def on_ready():
     channel = client.get_channel(STATUS_ID)
     if channel:
         await channel.send(f'**BOT ONLINE**')
+
+@client.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    await client.process_commands(message)
+
+    if client.user not in message.mentions:
+        return
+
+    if message.channel.id != GENERAL_ID:
+        await message.channel.send("Use me in general chat.")
+        return
+
+    content = message.content.replace(f"<@{client.user.id}>", "")
+    content = content.replace(f"<@!{client.user.id}>", "")
+    content = content.strip()
+
+    if not content:
+        content = "user just pinged the bot without a message"
+
+    async with message.channel.typing():
+        reply = await get_ai_response(
+            user_id=str(message.author.id),
+            username=message.author.display_name,
+            message_text=content
+        )
+
+    await message.channel.send(reply)
 
 @client.command()
 async def heyy(ctx):

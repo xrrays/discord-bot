@@ -9,6 +9,7 @@ from chai import chai_chat
 from fantasy import main_menu
 import os
 import webserver
+from chat import get_ai_response
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -23,6 +24,36 @@ client = commands.Bot(command_prefix='!', intents=intents)
 @client.event
 async def on_ready():
     print("BOT ONLINE")
+
+@client.event
+async def on_message(message):
+    if message.author.bot:
+        return
+
+    await client.process_commands(message)
+
+    if client.user not in message.mentions:
+        return
+
+    if message.channel.id != int(os.getenv("GENERAL_ID")):
+        await message.channel.send("Use me in general chat.")
+        return
+
+    content = message.content.replace(f"<@{client.user.id}>", "")
+    content = content.replace(f"<@!{client.user.id}>", "")
+    content = content.strip()
+
+    if not content:
+        content = "user just pinged the bot without a message"
+
+    async with message.channel.typing():
+        reply = await get_ai_response(
+            user_id=str(message.author.id),
+            username=message.author.display_name,
+            message_text=content
+        )
+
+    await message.channel.send(reply)
 
 @client.event
 async def on_member_join(member):

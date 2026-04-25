@@ -214,151 +214,6 @@ async def standings_vs_points_for_difference(ctx):
     output += "```"
     await ctx.send(output)
 
-# Option 9
-async def records_and_history(ctx):
-    print("\n🏆 League Records & History 🏆\n")
-
-    # use only completed weeks (exclude the current in-progress week)
-    current_week = int(lg.current_week())
-    last_completed_week = current_week - 1
-
-    if last_completed_week < 1:
-        await ctx.send("not enough completed weeks to generate records yet.\n")
-        return
-
-    lowest_weeks = []        # lowest single-week score
-    highest_weeks = []       # most points in a single week
-    blowout = None           # biggest blowout
-    closest = None           # closest non-tie matchup
-    bad_beat = None          # highest score in a loss
-
-    for week in range(1, last_completed_week + 1):
-        matchups_data = lg.matchups(week)
-        try:
-            matchups = matchups_data["fantasy_content"]["league"][1]["scoreboard"]["0"]["matchups"]
-        except KeyError:
-            continue
-
-        for matchup_id, matchup_info in matchups.items():
-            if matchup_id == "count":
-                continue
-
-            matchup = matchup_info["matchup"]
-            teams = matchup["0"]["teams"]
-
-            # grab both teams
-            entries = []
-            for i in ("0", "1"):
-                team = teams[i]["team"]
-                name = team[0][2]["name"]
-                points = float(team[1]["team_points"]["total"])
-                entries.append({"name": name, "points": points})
-
-            team1, team2 = entries[0], entries[1]
-
-            # track all single-week scores
-            for t in (team1, team2):
-                entry = {
-                    "name": t["name"],
-                    "points": t["points"],
-                    "week": week,
-                }
-                highest_weeks.append(entry)
-                # exclude week 1 from lowest single-week scores
-                if week != 1:
-                    lowest_weeks.append(entry)
-
-            # skip ties for winner/loser-based records
-            if team1["points"] == team2["points"]:
-                continue
-
-            if team1["points"] > team2["points"]:
-                winner, loser = team1, team2
-            else:
-                winner, loser = team2, team1
-
-            margin = abs(winner["points"] - loser["points"])
-
-            # biggest blowout
-            if blowout is None or margin > blowout["margin"]:
-                blowout = {
-                    "winner": winner["name"],
-                    "loser": loser["name"],
-                    "winner_points": winner["points"],
-                    "loser_points": loser["points"],
-                    "margin": margin,
-                    "week": week,
-                }
-
-            # closest matchup (non-zero margin)
-            if closest is None or margin < closest["margin"]:
-                closest = {
-                    "winner": winner["name"],
-                    "loser": loser["name"],
-                    "winner_points": winner["points"],
-                    "loser_points": loser["points"],
-                    "margin": margin,
-                    "week": week,
-                }
-
-            # highest score in a loss (bad beat)
-            if bad_beat is None or loser["points"] > bad_beat["loser_points"]:
-                bad_beat = {
-                    "loser": loser["name"],
-                    "winner": winner["name"],
-                    "loser_points": loser["points"],
-                    "winner_points": winner["points"],
-                    "margin": margin,
-                    "week": week,
-                }
-            
-    # sort and keep top/bottom 3
-    highest_weeks = sorted(highest_weeks, key=lambda x: x["points"], reverse=True)[:3]
-    lowest_weeks = sorted(lowest_weeks, key=lambda x: x["points"])[:3]
-
-    # build discord message instead of printing
-    output = "**🏆 League Records & History 🏆**\n```"
-
-    if highest_weeks:
-        output += "\n🔥 Top 3 Highest Single-Week Scores\n"
-        for i, hw in enumerate(highest_weeks, 1):
-            output += f"{i}. {hw['name']} — {hw['points']:.2f} points (Week {hw['week']})\n"
-        
-    if lowest_weeks:
-        output += "\n🗑️ Top 3 Lowest Single-Week Scores\n"
-        for i, lw in enumerate(lowest_weeks, 1):
-            output += f"{i}. {lw['name']} — {lw['points']:.2f} points (Week {lw['week']})\n"
-
-    if blowout:
-        output += (
-            f"\n💥 Biggest Blowout\n"
-            f"{blowout['winner']} defeated {blowout['loser']} by a margin of "
-            f"{blowout['margin']:.2f}: "
-            f"{blowout['winner_points']:.2f} - {blowout['loser_points']:.2f} "
-            f"(Week {blowout['week']})\n"
-        )
-
-    if closest:
-        output += (
-            f"\n🤏 Closest Matchup\n"
-            f"{closest['winner']} defeated {closest['loser']} by a margin of "
-            f"{closest['margin']:.2f}: "
-            f"{closest['winner_points']:.2f} - {closest['loser_points']:.2f} "
-            f"(Week {closest['week']})\n"
-        )
-
-    if bad_beat:
-        output += (
-            f"\n😵 Highest Score in a Loss\n"
-            f"{bad_beat['loser']} scores {bad_beat['loser_points']:.2f} in a loss to "
-            f"{bad_beat['winner']}: "
-            f"{bad_beat['loser_points']:.2f} - {bad_beat['winner_points']:.2f} "
-            f"(Week {bad_beat['week']})\n"
-        )
-
-    output += "```"
-    await ctx.send(output)
-
 async def display_menu(ctx):
     menu = (
         "**🏒 Fantasy Tracker Menu 🏒**\n"
@@ -370,7 +225,6 @@ async def display_menu(ctx):
         "6️⃣ Average Margin of Victory/Loss\n"
         "7️⃣ Standings\n"
         "8️⃣ Standings vs Points For Difference\n"
-        "9️⃣ Records & History\n"
         "0️⃣ Exit"
     )
     await ctx.send(menu)
@@ -403,8 +257,6 @@ async def main_menu(ctx):
                 await standings(ctx)
             elif choice == '8':
                 await standings_vs_points_for_difference(ctx)
-            elif choice == '9':
-                await records_and_history(ctx)
             elif choice == '0':
                 await ctx.send("exiting fantasy tracker. bye!👋")
                 break
@@ -413,9 +265,14 @@ async def main_menu(ctx):
         except asyncio.TimeoutError:
             await ctx.send("timeout reached. exiting menu. ⏳")
             break
-    active_users.remove(ctx.author.id)
+    active_users.discard(ctx.author.id)
 
 # main_menu()
 # standings_data = lg.standings()
 # print("Raw standings data:", standings_data)
+
+
+# single day record
+# 5 year combined stats
+# standings based on average points
 
