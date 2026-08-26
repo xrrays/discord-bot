@@ -1,14 +1,23 @@
 # others.py
 
 from datetime import datetime
+import logging
 import requests
-from jokeapi import Jokes
 import os
+
+
+logger = logging.getLogger(__name__)
+
 
 async def send_weather(ctx, *, city: str):
     print("COMMAND RECIEVED")
-    
-    weather_api = f"http://api.weatherapi.com/v1/current.json?key={os.getenv('WEATHER_API')}&q={city}"
+
+    api_key = os.getenv('WEATHER_API')
+    if not api_key:
+        await ctx.send("weather's missing its api key rn")
+        return
+
+    weather_api = f"http://api.weatherapi.com/v1/current.json?key={api_key}&q={city}"
 
 
     response = requests.get(weather_api)
@@ -45,6 +54,14 @@ async def send_weather(ctx, *, city: str):
 
 async def tell_joke(ctx):
     print("COMMAND RECIEVED")
+
+    try:
+        from jokeapi import Jokes
+    except Exception:
+        logger.exception("Joke integration failed to import.")
+        await ctx.send("the jokes are cooked rn, try again later")
+        return
+
     joke_api = await Jokes()
     joke = await joke_api.get_joke(category=['Misc', 'Dark', 'Pun', 'Spooky', 'Christmas'])
     if joke["type"] == "single":
@@ -55,7 +72,12 @@ async def tell_joke(ctx):
     await ctx.send(joke_text)
 
 async def get_lebron(ctx):
-    link = f'https://api.giphy.com/v1/gifs/random?api_key={os.getenv("GIPHY_KEY")}&tag=LeBron+James'
+    api_key = os.getenv("GIPHY_KEY")
+    if not api_key:
+        await ctx.send("lebron highlights lost their api key rn")
+        return
+
+    link = f'https://api.giphy.com/v1/gifs/random?api_key={api_key}&tag=LeBron+James'
     response = requests.get(link)
     data = response.json()
     gif = data['data']['images']['original']['url']

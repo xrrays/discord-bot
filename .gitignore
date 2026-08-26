@@ -1,16 +1,31 @@
+# Local environment and credentials
+.env
+.env.*
+!.env.example
 apikeys.py
-scratch.txt
-apikeys.cpython-312.pyc
-blackjack.cpython-312.pyc
-fortnite.cpython-312.pyc
-slurpybot.cpython-312.pyc
-utils.cpython-312.pyc
-others.cpython-312.pyc
-chai.cpython-312.pyc
-tempCodeRunnerFile.py
-webserver.cpython-312.pyc
 oauth2.json
-fantasy.cpython-312.pyc
 oauth2_env.json
+
+# Local-only development files
+scratch.txt
+tempCodeRunnerFile.py
 xoltairfantasy.py
-xoltairfantasy.cpython-312.pyc
+
+# Python-generated files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

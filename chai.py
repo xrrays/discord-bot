@@ -1,10 +1,28 @@
 import asyncio
 from characterai import aiocai
+import logging
 import os
 import re
 
+
+logger = logging.getLogger(__name__)
 chat_ongoing = False
-character_client = aiocai.Client(os.getenv('CHAI_API'))
+character_client = None
+
+
+def get_character_client():
+    global character_client
+
+    api_key = os.getenv('CHAI_API')
+    if not api_key:
+        return None
+
+    if character_client is None:
+        character_client = aiocai.Client(api_key)
+
+    return character_client
+
+
 char_ids = {
     "ChatGPT  📖": "7IA8Bw3NsyjruZH-8gLLKqzo3UdZ_2QBvqrCBlS0__U",
     "Deku  🦸": "SfNiZ7aywr02lNEY5bPu0MdytcnhKaT1Yza5KCOW8hc",
@@ -21,6 +39,17 @@ async def chai_chat(ctx):
     
     # CHAT CHECK
     global chat_ongoing
+
+    try:
+        client = get_character_client()
+    except Exception:
+        logger.exception("Character chat client failed to initialize.")
+        await ctx.send("chai's tweaking rn, try again later")
+        return
+
+    if client is None:
+        await ctx.send("chai's missing its login rn, try again later")
+        return
 
     if chat_ongoing:
         await ctx.send('A chat session is currently ongoing. Please wait until it finishes before starting one.')
@@ -48,7 +77,7 @@ async def chai_chat(ctx):
 
         # CONNECT TO NEW CHAT
         try:  
-            chat = await character_client.connect()
+            chat = await client.connect()
 
         except TypeError as e:
             await ctx.send(

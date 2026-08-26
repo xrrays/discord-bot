@@ -1,6 +1,7 @@
 # fortnite.py
 
 import math
+import logging
 from datetime import datetime
 import fortnite_api
 import os, aiohttp
@@ -9,8 +10,26 @@ try:
 except ImportError:
     FORTNITE_API_LOCAL = None
 
-fort_api = fortnite_api.FortniteAPI(api_key=os.getenv('FORTNITE_API'))
-API_KEY = os.getenv("FORTNITE_API") or FORTNITE_API_LOCAL
+
+logger = logging.getLogger(__name__)
+fort_api = None
+
+
+def get_api_key():
+    return os.getenv("FORTNITE_API") or FORTNITE_API_LOCAL
+
+
+def get_fortnite_client():
+    global fort_api
+
+    api_key = get_api_key()
+    if not api_key:
+        return None
+
+    if fort_api is None:
+        fort_api = fortnite_api.FortniteAPI(api_key=api_key)
+
+    return fort_api
 
 def chunk_message(message, chunk_size=2000):
     for i in range(0, len(message), chunk_size):
@@ -19,7 +38,18 @@ def chunk_message(message, chunk_size=2000):
 async def fort_news(ctx):
     print("COMMAND RECIEVED")
 
-    news_data = fort_api.news.fetch()
+    try:
+        client = get_fortnite_client()
+    except Exception:
+        logger.exception("Fortnite client failed to initialize.")
+        await ctx.send("fortnite's tweaking rn, try again in a bit")
+        return
+
+    if client is None:
+        await ctx.send("fortnite's missing its api key rn")
+        return
+
+    news_data = client.news.fetch()
     br_news = news_data.br.motds
     news_date = news_data.br.date.strftime('%B %d, %Y') 
 
@@ -34,8 +64,13 @@ async def fort_news(ctx):
 async def fort_shop(ctx):
     print("COMMAND RECEIVED")
 
+    api_key = get_api_key()
+    if not api_key:
+        await ctx.send("fortnite's missing its api key rn")
+        return
+
     url = "https://fortnite-api.com/v2/shop"
-    headers = {"Authorization": str(API_KEY)}
+    headers = {"Authorization": str(api_key)}
 
     async with aiohttp.ClientSession() as session:
         async with session.get(url, headers=headers) as resp:
@@ -70,7 +105,12 @@ async def fort_stats(ctx, player_name: str):
     print("COMMAND RECIEVED")
 
     try:
-        stats_data = fort_api.stats.fetch_by_name(name=player_name)
+        client = get_fortnite_client()
+        if client is None:
+            await ctx.send("fortnite's missing its api key rn")
+            return
+
+        stats_data = client.stats.fetch_by_name(name=player_name)
         battle_pass = stats_data.battle_pass
         overall_stats = stats_data.stats.all.overall
 
@@ -95,15 +135,28 @@ async def fort_stats(ctx, player_name: str):
         await ctx.send(f"{player_name}'s stats are not public. 🐱")
     except fortnite_api.errors.NotFound:
         await ctx.send(f"{player_name}'s account does not exist.  👻")
+    except Exception:
+        logger.exception("Fortnite stats client failed.")
+        await ctx.send("fortnite's tweaking rn, try again in a bit")
 
 async def fort_map(ctx):
     print("COMMAND RECIEVED")
 
-    map_data = fort_api.map.fetch()
+    try:
+        client = get_fortnite_client()
+    except Exception:
+        logger.exception("Fortnite client failed to initialize.")
+        await ctx.send("fortnite's tweaking rn, try again in a bit")
+        return
+
+    if client is None:
+        await ctx.send("fortnite's missing its api key rn")
+        return
+
+    map_data = client.map.fetch()
     poi_image = map_data.poi_image
     today_date = datetime.now().strftime('%B %d, %Y')
 
     message = (f"**The Fortnite map on {today_date}:  📍**")
     await ctx.send(message)
     await ctx.send(poi_image)
-    

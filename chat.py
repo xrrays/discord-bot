@@ -1,10 +1,24 @@
 import os
+import logging
 from collections import defaultdict, deque
 from openai import AsyncOpenAI
-# from apikeys import OPENAI_API_KEY
 
-# client = AsyncOpenAI(api_key=OPENAI_API_KEY)
-client = AsyncOpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+
+logger = logging.getLogger(__name__)
+client = None
+
+
+def get_openai_client():
+    global client
+
+    api_key = os.getenv("OPENAI_API_KEY")
+    if not api_key:
+        return None
+
+    if client is None:
+        client = AsyncOpenAI(api_key=api_key)
+
+    return client
 
 memory = defaultdict(lambda: deque(maxlen=7))
 
@@ -47,10 +61,14 @@ Previous messages:
 
 Current message:
 {message_text}
-"""
+    """
 
     try:
-        response = await client.responses.create(
+        openai_client = get_openai_client()
+        if openai_client is None:
+            return "my brain's offline rn, try me again in a bit"
+
+        response = await openai_client.responses.create(
             model="gpt-5.4-mini",
             instructions=SYSTEM_PROMPT,
             input=prompt,
@@ -59,8 +77,9 @@ Current message:
 
         reply = response.output_text.strip()
 
-    except Exception as e:
-        return f"Error: {e}"
+    except Exception:
+        logger.exception("OpenAI response failed.")
+        return "my brain's tweaking rn, try me again in a bit"
 
     history.append({"speaker": username, "text": message_text})
     history.append({"speaker": "Slurpy", "text": reply})

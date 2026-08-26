@@ -5,6 +5,7 @@ from threading import Thread
 import requests
 import time
 import logging
+import os
 
 app = Flask('')
 @app.route('/')
@@ -12,7 +13,8 @@ def home():
     return "DISCORD BOT OKAY"
 
 def run():
-    app.run(host = '0.0.0.0', port = 8080)
+    port = int(os.getenv('PORT', '8080'))
+    app.run(host='0.0.0.0', port=port)
 
 def keep_alive():
     def ping():
@@ -28,4 +30,3 @@ def keep_alive():
     t2 = Thread(target=ping)
     t1.start()
     t2.start()
-    
